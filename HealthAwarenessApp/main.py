@@ -2,8 +2,10 @@ import flet as ft
 from flet import Page, View
 from HealthResources import HealthResourcesView
 from Details import DetailsView
+from Details import DetailsAppBar
 
 def main(page: Page):
+    page.route = "/details"
     def route_change(route):
         page.views.clear()
         if page.route == "/":
@@ -17,7 +19,9 @@ def main(page: Page):
         elif page.route == "/details":
             page.views.append(
                 View(
-                    "/details",controls=[
+                    "/details",
+                    appbar=DetailsAppBar(page),
+                    controls=[
                         DetailsView(page)
                     ]
                 )
