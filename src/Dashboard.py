@@ -1,112 +1,181 @@
 import flet as ft
 
-# Function to navigate to different sections
-def show_dashboard(page):
-    page.clean()  # Clear previous content
-    page.title = "Dashboard"
-
-    # Function to create clickable containers for navigation
-    def create_clickable_container(label, bgcolor, width, height, destination):
-        return ft.Container(
-            content=ft.Text(label),
-            bgcolor=bgcolor,
-            height=height,
-            width=width,
-            padding=10,
-            border_radius=10,
-            on_click=lambda e: destination(page)  # Navigate on click
-        )
-
-    # Containers as navigation links
-    top_container = ft.Container(
-        content=ft.Text("Hello, User"),
-        bgcolor=ft.colors.RED_100,
-        height=232,
-        width=610,
-        padding=10,
-        border_radius=10
-    )
-
-    middle_left_container = create_clickable_container("Vaccination Schedule", ft.colors.YELLOW_200, 282, 232, show_vaccination_schedule)
-    middle_right_container = create_clickable_container("Health Resources", ft.colors.BLUE_200, 282, 232, show_health_resources)
-
-    # Middle section with two columns
-    middle_container = ft.Container(
-        content=ft.Row(
-            controls=[middle_left_container, middle_right_container],
-            spacing=10  # Small gap between sections
+# Function to create a container with hover and click functionality
+def create_container(text1, bgcolor, page, destination=None, hover_color=None):
+    container = ft.Container(
+        content=ft.Column(  # Use ft.Column for vertical arrangement
+            controls=[
+                ft.Text(text1, size=20, weight="bold"),  # First text
+                ft.Text("View " + text1, size=16, color=ft.Colors.GREY_600),  # Second text
+            ],
+            alignment=ft.MainAxisAlignment.CENTER,  # Center the texts vertically
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,  # Center the texts horizontally
         ),
-        height=210,
-        width=610
+        border_radius=10,
+        bgcolor=bgcolor,
+        expand=True,
+        alignment=ft.alignment.center,
     )
 
-    bottom_container = create_clickable_container("Stats", ft.colors.PURPLE_100, 610, 232, show_stats)
+    # Function to handle hover events
+    def on_hover(e):
+        container.bgcolor = hover_color if e.data == "true" else bgcolor
+        container.update()
 
-    # Left side container
-    left_container = ft.Container(
-        content=ft.Column(
-            controls=[top_container, middle_container, bottom_container],
-        ),
-        expand=3,
-        margin=ft.margin.only(right=5),
-        alignment=ft.alignment.center_right
-    )
+    # Attach the hover event
+    container.on_hover = on_hover
 
-    # Right container (News Articles)
-    right_container = create_clickable_container("News Articles", ft.colors.GREEN_100, 300, 1000, show_news_articles)
-    
-    # Layout
-    layout = ft.Row(
-        controls=[left_container, right_container],
-        expand=True
-    )
+    # Attach the click event if a destination is provided
+    if destination:
+        container.on_click = lambda e: navigate_to(destination, page)
 
-    page.add(layout)
-    page.update()
+    return container
 
-# Function for the Vaccination Schedule page
+def on_logout_click(e, page):
+    page.go("/login")
+
+# Central routing function
+def navigate_to(destination, page):
+    page.clean()  # Clear the current page
+    destination(page)  # Call the destination function
+
+# Function to show the Vaccination Schedule page
 def show_vaccination_schedule(page):
-    page.clean()
     page.title = "Vaccination Schedule"
     page.add(
-        ft.Text("Vaccination Schedule Page"),
-        ft.ElevatedButton("Back to Dashboard", on_click=lambda e: show_dashboard(page))
+        create_container("Vaccination Schedule Page", ft.Colors.WHITE, page),
+        ft.ElevatedButton("Back to Dashboard", on_click=lambda e: navigate_to(show_dashboard, page))
     )
     page.update()
 
-# Function for the Health Resources page
+# Function to show the Health Resources page
 def show_health_resources(page):
-    page.clean()
     page.title = "Health Resources"
     page.add(
-        ft.Text("Health Resources Page"),
-        ft.ElevatedButton("Back to Dashboard", on_click=lambda e: show_dashboard(page))
+        create_container("Health Resources Page", ft.Colors.WHITE, page),
+        ft.ElevatedButton("Back to Dashboard", on_click=lambda e: navigate_to(show_dashboard, page))
     )
     page.update()
 
-# Function for the Stats page
+# Function to show the Stats page
 def show_stats(page):
-    page.clean()
     page.title = "Stats"
     page.add(
-        ft.Text("Stats Page"),
-        ft.ElevatedButton("Back to Dashboard", on_click=lambda e: show_dashboard(page))
+        create_container("Stats Page", ft.Colors.WHITE, page),
+        ft.ElevatedButton("Back to Dashboard", on_click=lambda e: navigate_to(show_dashboard, page))
     )
     page.update()
 
-# Function for the News Articles page
+# Function to show the News Articles page
 def show_news_articles(page):
-    page.clean()
     page.title = "News Articles"
     page.add(
-        ft.Text("News Articles Page"),
-        ft.ElevatedButton("Back to Dashboard", on_click=lambda e: show_dashboard(page))
+        create_container("News Articles Page", ft.Colors.WHITE, page),
+        ft.ElevatedButton("Back to Dashboard", on_click=lambda e: navigate_to(show_dashboard, page))
     )
     page.update()
+
+# Function to show the Dashboard
+def show_dashboard(page):
+    page.title = "Dashboard"
+
+    def create_nested_column(header_color, body_color, footer_color):
+        return ft.Column(
+            controls=[
+                ft.Container(
+                    expand=3,
+                    content=ft.Row(
+                        controls=[
+                            ft.Text("Hello, User", size=20, weight="bold"),
+                            ft.ElevatedButton("Logout", on_click=lambda e: on_logout_click(e, page))
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    ),
+                    padding=5,
+                    bgcolor=header_color,
+                    alignment=ft.alignment.bottom_left,
+                ),
+                ft.Container(
+                    expand=4,
+                    content=create_nested_row(ft.Colors.WHITE, page),
+                    bgcolor=body_color,
+                    alignment=ft.alignment.center,
+                ),
+                ft.Container(
+                    expand=4,
+                    content=create_container("Statistics", footer_color, page, destination=show_stats, hover_color=ft.Colors.RED_100),
+                    bgcolor=ft.Colors.WHITE,
+                    alignment=ft.alignment.center,
+                ),
+            ],
+            expand=True,
+        )
+
+    def create_nested_row(body_color, page):
+        return ft.ResponsiveRow(
+            controls=[
+                ft.Column(
+                    col={"sm": 12, "md": 6},
+                    controls=[
+                        ft.Container(
+                            content=create_container("Vaccination Schedules", ft.Colors.AMBER_300, page, destination=show_vaccination_schedule, hover_color=ft.Colors.AMBER_500),
+                            bgcolor=ft.Colors.WHITE,
+                            alignment=ft.alignment.center,
+                            expand=True,
+                        ),
+                    ],
+                ),
+                ft.Column(
+                    col={"sm": 12, "md": 6},
+                    controls=[
+                        ft.Container(
+                            content=create_container("Health Resources", ft.Colors.GREEN_300, page, destination=show_health_resources, hover_color=ft.Colors.GREEN_500),
+                            bgcolor=ft.Colors.WHITE,
+                            alignment=ft.alignment.center,
+                            expand=True,
+                        ),
+                    ],
+                ),
+            ],
+            expand=True,
+        )
+
+    # Create the main layout
+    main_layout = ft.ResponsiveRow(
+        controls=[
+            ft.Column(
+                col={"sm": 12, "md": 9},
+                controls=[
+                    create_nested_column(
+                        ft.Colors.BLUE_200, ft.Colors.WHITE, ft.Colors.RED_200
+                    ),
+                ],
+                expand=True,
+            ),
+            ft.Column(
+                col={"sm": 12, "md": 3},
+                controls=[
+                    ft.Container(
+                        content=create_container("Articles", ft.Colors.YELLOW_200, page, destination=show_news_articles, hover_color=ft.Colors.YELLOW_500),
+                        bgcolor=ft.Colors.WHITE,
+                        alignment=ft.alignment.center,
+                        expand=True,
+                    ),
+                ],
+                expand=True,
+            ),
+        ],
+        adaptive=True,
+        expand=True,
+    )
+
+    page.add(main_layout)
 
 # Main function to start the app
 def main(page: ft.Page):
-    show_dashboard(page)
+    page.window.width=1200
+    page.window.height=600
+    page.update()
+    show_dashboard(page)  # Start with the dashboard
 
-# Run the app in Ubuntu VS Code Terminal
 ft.app(target=main)
