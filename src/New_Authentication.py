@@ -1,7 +1,6 @@
 import flet as ft
 from New_Login import login_view
 from New_Signup import signup_view
-from home_view import home_view
 from Dashboard import show_dashboard  # Import the dashboard logic
 import pymongo
 import bcrypt
