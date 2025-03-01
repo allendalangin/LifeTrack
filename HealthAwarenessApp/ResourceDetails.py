@@ -3,23 +3,23 @@ from flet import *
 from flet import Text, Container, SearchBar, border, ElevatedButton, View, IconButton, Icons
 from flet import CrossAxisAlignment, MainAxisAlignment, Page, Column, ListView, alignment
 
-class DetailsAppBar(AppBar):
+class ResourceDetailsAppBar(AppBar):
     def __init__(self, page):
         super().__init__(
             leading=ft.IconButton(
                     icon=ft.Icons.ARROW_BACK,
-                    on_click=lambda _: page.go("/"),
+                    on_click=lambda _: page.go("/resources"),
             ),leading_width=50,
         )
 
-def DetailsView(page):
+def ResourceDetailsView(page):
     page.theme_mode = "dark"
-    page.title = "Details Page"
+    page.title = "Health Resource Details Page"
     return Column(
         controls=[
             Text("St. Luke's Medical Center", size=24, weight="bold"),
             Image(
-                src="/home/ket/LocalRepo/HealthAwarenessApp/assets/DetailImage",
+                src="/home/ket/LocalRepo/LifeTrack/HealthAwarenessApp/assets/DetailImage",
                 width=300,
                 height=200,
                 fit = ImageFit.CONTAIN

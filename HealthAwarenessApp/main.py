@@ -1,28 +1,50 @@
 import flet as ft
 from flet import Page, View
 from HealthResources import HealthResourcesView
-from Details import DetailsView
-from Details import DetailsAppBar
+from HealthArticles import HealthArticlesView
+from ResourceDetails import ResourceDetailsView
+from ResourceDetails import ResourceDetailsAppBar
+from ArticleDetails import ArticleDetailsView
+from ArticleDetails import ArticleDetailsAppBar
 
 def main(page: Page):
-    page.route = "/details"
+    page.route = "/articles"
     def route_change(route):
         page.views.clear()
-        if page.route == "/":
+        if page.route == "/resources":
             page.views.append(
                 View(
-                    "/", controls=[
+                    "/resources", controls=[
                         HealthResourcesView(page)
                     ]
                 )
             )
-        elif page.route == "/details":
+        elif page.route == "/resource-details":
             page.views.append(
                 View(
-                    "/details",
-                    appbar=DetailsAppBar(page),
+                    "/resource-details",
+                    appbar=ResourceDetailsAppBar(page),
                     controls=[
-                        DetailsView(page)
+                        ResourceDetailsView(page)
+                    ]
+                )
+            )
+        elif page.route == "/articles":
+            page.views.append(
+                View(
+                    "/articles",
+                    controls=[
+                        HealthArticlesView(page)
+                    ]
+                )
+            )
+        elif page.route == "/article-details":
+            page.views.append(
+                View(
+                    "/article-details",
+                    appbar=ArticleDetailsAppBar(page),
+                    controls=[
+                        ArticleDetailsView(page)
                     ]
                 )
             )
