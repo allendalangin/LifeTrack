@@ -2,6 +2,7 @@ import flet as ft
 from New_Login import login_view
 from New_Signup import signup_view
 from home_view import home_view
+from Dashboard import show_dashboard  # Import the dashboard logic
 import pymongo
 import bcrypt
 
@@ -33,13 +34,17 @@ def authenticate_user(username, password):
 
 def main(page: ft.Page):
     def route_change(route):
+        print(f"Route changed to: {route}")  # Debugging
         page.views.clear()
         if page.route == "/login":
+            print("Loading login view...")  # Debugging
             page.views.append(login_view(page, authenticate_user))
         elif page.route == "/signup":
+            print("Loading signup view...")  # Debugging
             page.views.append(signup_view(page, register_user))
         elif page.route == "/home":
-            page.views.append(home_view(page))
+            print("Loading dashboard...")  # Debugging
+            page.views.append(show_dashboard(page))  # Append the dashboard view
         page.update()
 
     def view_pop(view):
@@ -47,8 +52,10 @@ def main(page: ft.Page):
         top_view = page.views[-1]
         page.go(top_view.route)
 
+    # Set the initial route to "/login"
+    page.route = "/login"  # Explicitly set the route
     page.on_route_change = route_change
     page.on_view_pop = view_pop
-    page.go("/login")
+    page.go("/login")  # Navigate to the login page
 
 ft.app(target=main)
