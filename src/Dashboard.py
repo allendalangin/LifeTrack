@@ -49,7 +49,7 @@ def create_container(text1, bgcolor, page, destination=None, hover_color=None):
     return container
 
 # ------------------- Dashboard -------------------
-def show_dashboard(page):
+def show_dashboard(page, username=None):
     print("Dashboard Loaded")
 
     # Nested row before usage
@@ -90,7 +90,7 @@ def show_dashboard(page):
                     expand=3,
                     content=ft.Row(
                         controls=[
-                            ft.Text("Hello, User", size=20, weight="bold"),
+                            ft.Text(f"Hello, {username if username else 'User'}", size=20, weight="bold"),  # Display the username
                             ft.ElevatedButton("Logout", on_click=lambda e: page.go("/login")),
                         ],
                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,

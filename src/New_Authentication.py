@@ -29,8 +29,8 @@ def register_user(username, password):
 def authenticate_user(username, password):
     user = users_collection.find_one({"username": username})
     if user and check_password(password, user["password"]):
-        return True, "Login successful!"
-    return False, "Invalid credentials!"
+        return True, "Login successful!", username  # Return username along with success status and message
+    return False, "Invalid credentials!", None
 
 def main(page: ft.Page):
     def route_change(route):
@@ -42,9 +42,13 @@ def main(page: ft.Page):
         elif page.route == "/signup":
             print("Loading signup view...")  # Debugging
             page.views.append(signup_view(page, register_user))
-        elif page.route == "/home":
+        elif page.route.startswith("/home"):
             print("Loading dashboard...")  # Debugging
-            page.views.append(show_dashboard(page))  # Append the dashboard view
+            # Extract username from the route
+            username = None
+            if "username=" in page.route:
+                username = page.route.split("username=")[1]
+            page.views.append(show_dashboard(page, username))  # Pass username to the dashboard
         page.update()
 
     def view_pop(view):
