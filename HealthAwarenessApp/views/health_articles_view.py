@@ -1,9 +1,29 @@
 import flet as ft
-from flet import Text, Container, SearchBar, border, Column, ListView, alignment, MainAxisAlignment, CrossAxisAlignment
+from flet import Text, Container, SearchBar, border, Column, ListView, alignment, MainAxisAlignment, CrossAxisAlignment, AppBar, PopupMenuItem, PopupMenuButton, ElevatedButton
 import requests
 from models.article import Article
 
-# Helper function to fetch articles from the API endpoint
+
+#ListAppBar
+class ArticlesListAppBar(AppBar):
+    def __init__(self, page):
+        super().__init__(
+            title = Text("LifeTrack"),
+            actions=[
+                PopupMenuButton(
+                    items=[
+                        PopupMenuItem(text="Dashboard"),
+                        PopupMenuItem(text="Health Articles", on_click = lambda _: page.go("/articles")),
+                        PopupMenuItem(text="Health Resources", on_click = lambda _: page.go("/resources")),
+                        PopupMenuItem(text="Stats"),
+                    ]
+                ),
+                ElevatedButton("My Profile"),
+            ]
+        )
+        
+
+# Helper function to fetch articles from the API endpointpy
 def fetch_articles():
     try:
         response = requests.get("http://127.0.0.1:8000/articles")
@@ -46,7 +66,9 @@ class HealthArticleView(Container):
             width=550,
             height=120,
             ink=True,
-            on_click=lambda _: nav_page.go("/article-details") if nav_page else None
+            on_click=lambda _: (
+                setattr(nav_page, "selected_article", self.article), #this is needed to pass the article to article details
+                nav_page.go("/article-details"))
         )
 
 def HealthArticlesView(page: ft.Page):
@@ -60,21 +82,26 @@ def HealthArticlesView(page: ft.Page):
     articles_data = fetch_articles()
     articles = [dict_to_article(ad) for ad in articles_data]
 
-    # Build a list of article UI elements
-    article_controls = [HealthArticleView(article, page).build_container(page) for article in articles]
     articles_list = ListView(
         expand=True,
         spacing=20,
         width=600,
-        controls=article_controls
+        controls=[HealthArticleView(article, page).build_container(page) for article in articles]
     )
 
-    # Build the search bar (filtering can be added as needed)
+    # Function to filter articles based on search query
+    def update_list(query):
+        filtered = [article for article in articles if query.lower() in article.title.lower()]
+        # Rebuild the list view controls
+        articles_list.controls = [HealthArticleView(article, page).build_container(page) for article in filtered]
+        page.update()
+
+    # Build the search bar
     search_bar = SearchBar(
         bar_hint_text="Search articles...",
         width=600,
         height=50,
-        on_change=lambda e: None
+        on_change=lambda e: update_list(e.control.value)
     )
 
     return Column(

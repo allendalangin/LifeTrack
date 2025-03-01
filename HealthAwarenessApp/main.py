@@ -1,15 +1,19 @@
 import flet as ft
 from flet import *
 from flet import Page, View, AppBar
-from views.heath_
+from views.health_articles_view import HealthArticlesView
 from views.article_details_view import ArticleDetailsView
 from views.article_details_view import ArticleDetailsAppBar
+
 from views.health_resources_view import HealthResourcesView
 from views.resource_details_view import ResourceDetailsView
 from views.resource_details_view import ResourceDetailsAppBar
 
+from views.health_articles_view import ArticlesListAppBar
+from views.health_resources_view import ResourcesListAppBar
+
 def main(page: Page):
-    page.route = "/resources"
+    page.route = "/articles"
 
     def route_change(route):
         page.views.clear()
@@ -17,6 +21,7 @@ def main(page: Page):
             page.views.append(
                 View(
                     "/articles",
+                    appbar = ArticlesListAppBar(page),
                     controls=[HealthArticlesView(page)]
                 )
             )
@@ -31,7 +36,9 @@ def main(page: Page):
         elif page.route == "/resources":
             page.views.append(
                 View(
-                    "/resources", controls=[
+                    "/resources", 
+                    appbar=ResourcesListAppBar(page),
+                    controls=[
                         HealthResourcesView(page)
                     ]
                 )

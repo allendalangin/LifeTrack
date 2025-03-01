@@ -14,8 +14,8 @@ class ArticleDetailsAppBar(AppBar):
                 PopupMenuButton(
                     items=[
                         PopupMenuItem(text="Dashboard"),
-                        PopupMenuItem(text="Health Articles"),
-                        PopupMenuItem(text="Health Resources"),
+                        PopupMenuItem(text="Health Articles", on_click=lambda _: page.go("/articles")),
+                        PopupMenuItem(text="Health Resources", on_click=lambda _: page.go("/resources")),
                         PopupMenuItem(text="Stats"),
                     ]
                 ),
@@ -25,17 +25,20 @@ class ArticleDetailsAppBar(AppBar):
 
 def ArticleDetailsView(page: ft.Page):
     page.title = "Article Details"
+    article = getattr(page, "selected_article", None)
+    if not article:
+        return Column(controls=[Text("No article selected.")])
     return Column(
         controls=[
-            Text("The Benefits of a Balanced Diet", size=24, weight="bold"),
+            Text(article.title, size=24, weight="bold"),
             Image(
                 src="/path/to/your/image.png",
                 width=300,
                 height=200,
                 fit=ft.ImageFit.CONTAIN
             ),
-            Text("Author: Dr. Smith", size=16, italic=True),
-            Text("Publish Date: 2025-02-15", size=12, color=ft.Colors.GREY),
-            Text("Full article content goes here...", width=700, height=100),
+            Text(f"By {article.author}", size=16, italic=True),
+            Text(f"Publish Date: {article.published_date}", size=12, color=ft.Colors.GREY),
+            Text(article.content, width=700, height=100),
         ]
     )
