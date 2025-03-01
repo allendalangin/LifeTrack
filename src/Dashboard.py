@@ -18,6 +18,22 @@ class DetailsAppBar(ft.AppBar):
             ),
             center_title=True,
             toolbar_height=40,
+            actions=[
+                # Settings button with a popup menu
+                ft.PopupMenuButton(
+                    icon=ft.icons.SETTINGS,
+                    items=[
+                        ft.PopupMenuItem(
+                            text="Profile",
+                            on_click=lambda e: print("Profile clicked"),  # Placeholder for profile action
+                        ),
+                        ft.PopupMenuItem(
+                            text="Logout",
+                            on_click=lambda e: page.go("/login"),  # Logout action
+                        ),
+                    ],
+                ),
+            ],
         )
 
 # ------------------- Create Hoverable Container -------------------
@@ -91,7 +107,6 @@ def show_dashboard(page, username=None):
                     content=ft.Row(
                         controls=[
                             ft.Text(f"Hello, {username if username else 'User'}", size=20, weight="bold"),  # Display the username
-                            ft.ElevatedButton("Logout", on_click=lambda e: page.go("/login")),
                         ],
                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     ),
@@ -143,5 +158,5 @@ def show_dashboard(page, username=None):
     return ft.View(
         "/home",
         controls=[main_layout],
-        appbar=DetailsAppBar(page),
+        appbar=DetailsAppBar(page),  # Use the updated app bar
     )
