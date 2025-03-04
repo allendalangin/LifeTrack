@@ -9,34 +9,39 @@ db = client["LifeTrack"]
 validator = {
     "$jsonSchema": {
         "bsonType": "object",
-        "required": ["title", "author", "date", "content"],
+        "required": ["date", "count"],
         "properties": {
-            "title": {
-                "bsonType": "string",
-                "description": "must be a string and is required"
-            },
-            "author": {
-                "bsonType": "string",
-                "description": "must be a string and is required"
-            },
             "date": {
                 "bsonType": "date",
                 "description": "must be a date and is required"
             },
-            "content": {
-                "bsonType": "string",
-                "description": "must be a string and is required"
-            }
+            "count": {
+                "bsonType": "int",
+                "description": "must be a integer and is required"
+            },
         }
     }
 }
 
+'''
 try:
-    db.create_collection("articles", validator=validator)
-    print("Collection 'articles' created with validation.")
+    db.create_collection("vaccination_stats", validator=validator)
+    print("Collection 'vaccination stats' created with validation.")
 except Exception as e:
     print("Collection might already exist. Updating validator...")
     db.command("collMod", "articles", validator=validator)
+    
+'''
 
 articles_collection = db["articles"]
 resources_collection = db["resources"]
+vaccination_stats_collection = db["vaccination_stats"]
+
+sample_data = [
+    {"date": datetime(2025, 3, 1), "count": 150},
+    {"date": datetime(2025, 3, 2), "count": 200},
+    {"date": datetime(2025, 3, 3), "count": 180},
+    {"date": datetime(2025, 3, 4), "count": 250},
+]
+
+vaccination_stats_collection.insert_many(sample_data)

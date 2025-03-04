@@ -16,7 +16,7 @@ class ArticleDetailsAppBar(AppBar):
                         PopupMenuItem(text="Dashboard"),
                         PopupMenuItem(text="Health Articles", on_click=lambda _: page.go("/articles")),
                         PopupMenuItem(text="Health Resources", on_click=lambda _: page.go("/resources")),
-                        PopupMenuItem(text="Stats"),
+                        PopupMenuItem(text="Stats", on_click = lambda _: page.go("/stats")),
                     ]
                 ),
                 ElevatedButton("My Profile"),
@@ -29,6 +29,8 @@ def ArticleDetailsView(page: ft.Page):
     if not article:
         return Column(controls=[Text("No article selected.")])
     return Column(
+        scroll=ft.ScrollMode.ALWAYS,
+        expand=True,
         controls=[
             Text(article.title, size=24, weight="bold"),
             Image(

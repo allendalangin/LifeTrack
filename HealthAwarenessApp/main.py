@@ -9,11 +9,14 @@ from views.health_resources_view import HealthResourcesView
 from views.resource_details_view import ResourceDetailsView
 from views.resource_details_view import ResourceDetailsAppBar
 
+from views.vaccination_stats_view import VaccinationStatsView
+from views.vaccination_stats_view import StatsAppBar
+
 from views.health_articles_view import ArticlesListAppBar
 from views.health_resources_view import ResourcesListAppBar
 
 def main(page: Page):
-    page.route = "/articles"
+    page.route = "/resources"
 
     def route_change(route):
         page.views.clear()
@@ -50,6 +53,17 @@ def main(page: Page):
                     appbar=ResourceDetailsAppBar(page),
                     controls=[
                         ResourceDetailsView(page)
+                    ]
+                )
+            )
+            
+        elif page.route == "/stats":
+            page.views.append(
+                View(
+                    "/stats",
+                    controls=[
+                        StatsAppBar(page),
+                        VaccinationStatsView(page)
                     ]
                 )
             )

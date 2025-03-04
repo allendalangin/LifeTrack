@@ -14,7 +14,7 @@ class ResourcesListAppBar(AppBar):
                         PopupMenuItem(text="Dashboard"),
                         PopupMenuItem(text="Health Articles", on_click = lambda _: page.go("/articles")),
                         PopupMenuItem(text="Health Resources", on_click = lambda _: page.go("/resources")),
-                        PopupMenuItem(text="Stats"),
+                        PopupMenuItem(text="Stats", on_click = lambda _: page.go("/stats")),
                     ]
                 ),
                 ElevatedButton("My Profile"),
@@ -102,6 +102,8 @@ def HealthResourcesView(page: ft.Page):
     )
 
     return Column(
+        scroll=ft.ScrollMode.ALWAYS,
+        expand=True,
         controls=[
             Container(content=search_bar, margin=20, alignment=ft.alignment.center),
             Container(content=resources_list, height=600, margin=20, alignment=alignment.center),

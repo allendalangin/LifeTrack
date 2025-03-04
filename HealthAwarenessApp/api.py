@@ -3,6 +3,7 @@ from models.article import Article
 from models.resource import Resource
 from controllers.article_controller import get_all_articles, create_article
 from controllers.resource_controller import get_all_resources, create_resource
+from controllers.vaccination_controller import get_vaccination_stats
 
 app = FastAPI()
 
@@ -33,6 +34,10 @@ def add_resource(resource: Resource):
         return {"id": resource_id, "message": "Resource created successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/vaccination-stats")
+def read_vaccination_stats():
+    return get_vaccination_stats()
 
 if __name__ == "__main__":
     import uvicorn
