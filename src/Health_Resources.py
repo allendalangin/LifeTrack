@@ -106,21 +106,24 @@ def create_location_search_view(page):
             place_id = business.get('place_id', 'N/A')
             url = f"https://www.google.com/maps/place/?q=place_id:{place_id}"
 
-            # Create a card for each result
-            result_card = ft.Card(
-                content=ft.Container(
-                    content=ft.Column(
-                        controls=[
-                            ft.Text(f"Name: {name}", size=16, weight="bold"),
-                            ft.Text(f"Address: {address}", size=14),
-                            ft.Text(f"Rating: {rating}", size=14),
-                            ft.Text(f"URL: {url}", size=14, color=ft.colors.BLUE),
-                        ],
-                        spacing=5,
+            # Create a clickable card for each result
+            result_card = ft.GestureDetector(
+                content=ft.Card(
+                    content=ft.Container(
+                        content=ft.Column(
+                            controls=[
+                                ft.Text(f"Name: {name}", size=16, weight="bold"),
+                                ft.Text(f"Address: {address}", size=14),
+                                ft.Text(f"Rating: {rating}", size=14),
+                                ft.Text(f"URL: {url}", size=14, color=ft.colors.BLUE),
+                            ],
+                            spacing=5,
+                        ),
+                        padding=10,
                     ),
-                    padding=10,
+                    margin=5,
                 ),
-                margin=5,
+                on_tap=lambda e, b=business: show_place_details(b),  # Handle click event
             )
             results_container.controls.append(result_card)
 
@@ -192,6 +195,35 @@ def create_location_search_view(page):
         else:
             search_mode = "hospitals"
             search_mode_button.text = "Search for Hospitals/Clinics"
+        page.update()
+
+    def show_place_details(business):
+        """Navigate to a new view that shows detailed information about the place."""
+        name = business.get('name', 'N/A')
+        address = business.get('vicinity', 'N/A')
+        rating = business.get('rating', 'N/A')
+        place_id = business.get('place_id', 'N/A')
+        url = f"https://www.google.com/maps/place/?q=place_id:{place_id}"
+
+        # Create a detailed view
+        details_view = ft.View(
+            "/place_details",
+            controls=[
+                ft.AppBar(title=ft.Text("Place Details")),
+                ft.Column(
+                    controls=[
+                        ft.Text(f"Name: {name}", size=20, weight="bold"),
+                        ft.Text(f"Address: {address}", size=16),
+                        ft.Text(f"Rating: {rating}", size=16),
+                        ft.Text(f"URL: {url}", size=16, color=ft.colors.BLUE),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                ),
+            ],
+        )
+
+        page.views.append(details_view)
         page.update()
 
     # Back to Dashboard Button
