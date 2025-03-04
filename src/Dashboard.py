@@ -9,7 +9,7 @@ class DetailsAppBar(ft.AppBar):
                     ft.Container(height=3),  
                     ft.Image(
                         src="src/assets/LifeTrackLogo.png",
-                        height=50,
+                        height=55,
                         fit=ft.ImageFit.FIT_HEIGHT,
                     ),
                 ],
@@ -19,19 +19,23 @@ class DetailsAppBar(ft.AppBar):
             center_title=True,
             toolbar_height=40,
             actions=[
-                # Settings button with a popup menu
-                ft.PopupMenuButton(
-                    icon=ft.icons.SETTINGS,
-                    items=[
-                        ft.PopupMenuItem(
-                            text="Profile",
-                            on_click=lambda e: print("Profile clicked"),  # Placeholder for profile action
-                        ),
-                        ft.PopupMenuItem(
-                            text="Logout",
-                            on_click=lambda e: page.go("/login"),  # Logout action
-                        ),
-                    ],
+                # Wrap PopupMenuButton in a Container to center it vertically
+                ft.Container(
+                    content=ft.PopupMenuButton(
+                        icon=ft.icons.SETTINGS,
+                        icon_color="#0cb4cc",  # Set icon color to #0cb4cc
+                        items=[
+                            ft.PopupMenuItem(
+                                text="Profile",
+                                on_click=lambda e: print("Profile clicked"),
+                            ),
+                            ft.PopupMenuItem(
+                                text="Logout",
+                                on_click=lambda e: page.go("/login"),
+                            ),
+                        ],
+                    ),
+                    alignment=ft.alignment.center,  # Center the icon vertically
                 ),
             ],
         )
@@ -51,10 +55,19 @@ def create_container(text1, bgcolor, page, destination=None, hover_color=None):
         bgcolor=bgcolor,
         expand=True,
         alignment=ft.alignment.center,
+        scale=ft.transform.Scale(scale=1),  # Initial scale
+        animate_scale=ft.Animation(300, ft.AnimationCurve.EASE_IN_OUT),  # Smooth animation
     )
 
     def on_hover(e):
-        container.bgcolor = hover_color if e.data == "true" else bgcolor
+        if e.data == "true":
+            # Magnify the container on hover
+            container.scale = ft.transform.Scale(scale=1.034)
+            container.bgcolor = hover_color if hover_color else bgcolor
+        else:
+            # Reset the container on hover exit
+            container.scale = ft.transform.Scale(scale=1)
+            container.bgcolor = bgcolor
         container.update()
 
     container.on_hover = on_hover
@@ -77,7 +90,6 @@ def show_dashboard(page, username=None):
                     controls=[
                         ft.Container(
                             content=create_container("Vaccination Schedules", ft.colors.AMBER_300, page, destination="/vaccination", hover_color=ft.colors.AMBER_500),
-                            bgcolor=ft.colors.WHITE,
                             alignment=ft.alignment.center,
                             expand=True,
                         ),
@@ -88,7 +100,7 @@ def show_dashboard(page, username=None):
                     controls=[
                         ft.Container(
                             content=create_container("Health Resources", ft.colors.GREEN_300, page, destination="/health", hover_color=ft.colors.GREEN_500),
-                            bgcolor=ft.colors.WHITE,
+                            
                             alignment=ft.alignment.center,
                             expand=True,
                         ),
@@ -123,7 +135,7 @@ def show_dashboard(page, username=None):
                 ft.Container(
                     expand=4,
                     content=create_container("Statistics", footer_color, page, destination="/stats", hover_color=ft.colors.RED_100),
-                    bgcolor=ft.colors.WHITE,
+        
                     alignment=ft.alignment.center,
                 ),
             ],
@@ -142,7 +154,7 @@ def show_dashboard(page, username=None):
                 controls=[
                     ft.Container(
                         content=create_container("Articles", ft.colors.YELLOW_200, page, destination="/news", hover_color=ft.colors.YELLOW_500),
-                        bgcolor=ft.colors.WHITE,
+                       
                         alignment=ft.alignment.center,
                         expand=True,
                     ),
@@ -158,5 +170,5 @@ def show_dashboard(page, username=None):
     return ft.View(
         "/home",
         controls=[main_layout],
-        appbar=DetailsAppBar(page),  # Use the updated app bar
+        appbar=DetailsAppBar(page),
     )
