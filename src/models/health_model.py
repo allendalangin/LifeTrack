@@ -1,0 +1,105 @@
+import time
+import googlemaps
+import requests
+
+class HealthModel:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.map_client = googlemaps.Client(api_key)
+
+    def miles_to_meters(self, miles):
+        """Convert miles to meters."""
+        try:
+            return miles * 1_609.344
+        except:
+            return 0
+
+    def get_user_location(self):
+        """Get the user's current location using IP address."""
+        try:
+            response = requests.get('https://ipinfo.io')
+            data = response.json()
+            location = data.get('loc', '').split(',')
+            if len(location) == 2:
+                latitude, longitude = location
+                return float(latitude), float(longitude)
+            else:
+                return None, None
+        except Exception as e:
+            print(f"Error retrieving location: {e}")
+            return None, None
+
+    def fetch_place_details(self, place_id):
+        """Fetch detailed information about a place using its place_id."""
+        try:
+            place_details = self.map_client.place(
+                place_id,
+                fields=[
+                    "name",
+                    "formatted_address",
+                    "rating",
+                    "website",
+                    "formatted_phone_number",
+                    "opening_hours",
+                    "photo",
+                    "review",
+                ]
+            )
+            return place_details.get('result', {})
+        except Exception as e:
+            print(f"Error fetching place details: {e}")
+            return {}
+
+    def get_photo_url(self, photo_reference, max_width=400):
+        """Generate a URL for a photo using its photo_reference."""
+        return f"https://maps.googleapis.com/maps/api/place/photo?maxwidth={max_width}&photoreference={photo_reference}&key={self.api_key}"
+
+    def search_nearby(self, lat, lng, mode):
+        """Search for nearby places based on the mode (hospitals or pharmacies)."""
+        if mode == "hospitals":
+            search_keywords = ['hospital', 'clinic', 'medical centers']
+        else:
+            search_keywords = ['pharmacy', 'drug store']
+
+        distance = self.miles_to_meters(2)
+        business_list = []
+
+        for search_string in search_keywords:
+            response = self.map_client.places_nearby(
+                location=(lat, lng),
+                keyword=search_string,
+                radius=distance
+            )
+            business_list.extend(response.get('results'))
+            next_page_token = response.get('next_page_token')
+
+            while next_page_token:
+                time.sleep(2)
+                response = self.map_client.places_nearby(
+                    location=(lat, lng),
+                    keyword=search_string,
+                    radius=distance,
+                    page_token=next_page_token
+                )
+                business_list.extend(response.get('results'))
+                next_page_token = response.get('next_page_token')
+
+        return business_list
+
+    def fetch_autocomplete_suggestions(self, query):
+        """Fetch autocomplete suggestions from the Google Places API."""
+        if not query:
+            return []
+
+        url = "https://maps.googleapis.com/maps/api/place/autocomplete/json"
+        params = {
+            "input": query,
+            "key": self.api_key,
+            "types": "geocode",  # Restrict to geographic locations
+        }
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("predictions", [])
+        else:
+            return []
