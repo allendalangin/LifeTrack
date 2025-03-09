@@ -1,16 +1,21 @@
 # src/views/dashboard_view.py
 
 import flet as ft
+import requests  # For making API requests
 
 class DashboardView:
     def __init__(self, page, controller, username=None):
         self.page = page
         self.controller = controller
         self.username = username
+        self.news_api_key = "373f805f1e35402bb154020a2aa70127"  # Your NewsAPI key
 
     def build(self):
         """Build and return the dashboard view."""
         print("Dashboard Loaded")
+
+        # Fetch news articles
+        news_articles = self.fetch_news_articles()
 
         # Nested row before usage
         def create_nested_row(body_color, page):
@@ -71,6 +76,26 @@ class DashboardView:
                 expand=True,
             )
 
+        # Create the "Articles" section
+        articles_section = ft.Column(
+            controls=[
+                ft.Text("Latest News", size=18, weight="bold"),  # Title
+                ft.ListView(
+                    controls=[
+                        self.create_news_card(article) for article in news_articles[:15]  # Show first 15 articles
+                    ],
+                    expand=True,  # Make the ListView expand to fill available space
+                    spacing=10,
+                ),
+                ft.ElevatedButton(
+                    text="See more news",
+                    on_click=lambda e: self.controller.handle_navigation("/news"),  # Navigate to /news
+                ),
+            ],
+            expand=True,  # Make the Column expand to fill available space
+            spacing=10,
+        )
+
         main_layout = ft.ResponsiveRow(
             controls=[
                 ft.Column(
@@ -82,9 +107,9 @@ class DashboardView:
                     col={"sm": 12, "md": 3},
                     controls=[
                         ft.Container(
-                            content=self.create_container("Articles", ft.colors.YELLOW_200, self.page, destination="/news", hover_color=ft.colors.YELLOW_500),
+                            content=articles_section,
                             alignment=ft.alignment.center,
-                            expand=True,
+                            expand=True,  # Make the Container expand to fill available space
                         ),
                     ],
                     expand=True,
@@ -100,6 +125,43 @@ class DashboardView:
             controls=[main_layout],
             appbar=self.DetailsAppBar(self.page),
             bgcolor="#f2f7ff",
+        )
+
+    def fetch_news_articles(self):
+        """Fetch news articles from NewsAPI."""
+        url = f"https://newsapi.org/v2/everything?q=health&apiKey={self.news_api_key}"
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  # Raise an error for bad responses
+            data = response.json()
+            return data.get("articles", [])  # Return the list of articles
+        except Exception as e:
+            print(f"Error fetching news: {e}")
+            return []  # Return an empty list if there's an error
+
+    def create_news_card(self, article):
+        """Create a news card for an article."""
+        title = article.get("title", "No Title")
+        image_url = article.get("urlToImage", "")
+        description = article.get("description", "No description available.")
+
+        return ft.Card(
+            content=ft.Container(
+                content=ft.Column(
+                    controls=[
+                        ft.Image(
+                            src=image_url,
+                            width=200,
+                            height=100,
+                            fit=ft.ImageFit.COVER,
+                        ) if image_url else ft.Text("No Image Available"),
+                        ft.Text(title, size=14, weight="bold"),
+                        ft.Text(description[:100] + "...", size=12),  # Show only the first 100 characters
+                    ],
+                    spacing=5,
+                ),
+                padding=10,
+            ),
         )
 
     def navigate_to(self, destination):
