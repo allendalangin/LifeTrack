@@ -2,36 +2,63 @@ import pymongo
 from pymongo import MongoClient
 from datetime import datetime
 
+import pymongo
+from pymongo import MongoClient
+
+
 MONGO_URI = "mongodb+srv://lodinaval:patrick2@fletapp.g5tl1.mongodb.net/?retryWrites=true&w=majority&appName=FletApp"
 client = MongoClient(MONGO_URI)
 db = client["LifeTrack"]
 
-validator = {
+
+"""
+# Drop the articles collection if it already exists
+if "articles" in db.list_collection_names():
+    db.articles.drop()
+    print("Dropped existing 'articles' collection.")
+
+# Define the JSON schema for the articles collection
+article_validator = {
     "$jsonSchema": {
         "bsonType": "object",
-        "required": ["date", "count"],
+        "required": ["title", "description", "source_name", "date", "image"],
         "properties": {
+            "title": {
+                "bsonType": "string",
+                "description": "must be a string and is required"
+            },
+            "description": {
+                "bsonType": "string",
+                "description": "must be a string and is required"
+            },
+            "source_name": {
+                "bsonType": "string",
+                "description": "must be a string and is required"
+            },
             "date": {
                 "bsonType": "date",
                 "description": "must be a date and is required"
             },
-            "count": {
-                "bsonType": "int",
-                "description": "must be a integer and is required"
+            "image": {
+                "bsonType": "string",
+                "description": "must be a string and is required"
             },
+            "content": {
+                "bsonType": "string",
+                "description": "optional article content"
+            }
         }
     }
 }
 
-'''
+# Create the articles collection with the specified validator
 try:
-    db.create_collection("vaccination_stats", validator=validator)
-    print("Collection 'vaccination stats' created with validation.")
+    db.create_collection("articles", validator=article_validator)
+    print("Articles collection created with validation.")
 except Exception as e:
-    print("Collection might already exist. Updating validator...")
-    db.command("collMod", "articles", validator=validator)
-    
-'''
+    print("Error creating articles collection:", e)
+
+"""
 
 articles_collection = db["articles"]
 resources_collection = db["resources"]
