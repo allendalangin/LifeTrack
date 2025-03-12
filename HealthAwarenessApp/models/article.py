@@ -3,6 +3,8 @@ from dataclasses import dataclass
 @dataclass
 class Article:
     title: str
-    author: str
-    published_date: str  # You can also use datetime here if desired.
+    description: str
+    source_name: str
+    published_date : str
+    image : str
     content: str = ""

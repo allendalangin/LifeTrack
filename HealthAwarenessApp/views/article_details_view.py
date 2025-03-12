@@ -39,7 +39,7 @@ def ArticleDetailsView(page: ft.Page):
                 height=200,
                 fit=ft.ImageFit.CONTAIN
             ),
-            Text(f"By {article.author}", size=16, italic=True),
+            Text(f"Description: {article.description}", size=16, italic=True),
             Text(f"Publish Date: {article.published_date}", size=12, color=ft.Colors.GREY),
             Text(article.content, width=700, height=100),
         ]

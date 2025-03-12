@@ -5,9 +5,11 @@ from database import articles_collection
 def article_helper(article_doc) -> Article:
     return Article(
         title=article_doc["title"],
-        author=article_doc["author"],
-        published_date=article_doc["date"].strftime("%Y-%m-%d"),
-        content=article_doc.get("content", "")
+        description=article_doc["description"],
+        source_name=article_doc["source_name"],
+        published_date=article_doc["date"],
+        content=article_doc.get("content", ""),
+        image=article_doc["image"],
     )
 
 def get_all_articles():
@@ -17,10 +19,11 @@ def get_all_articles():
 def create_article(article: Article):
     article_dict = {
         "title": article.title,
-        "author": article.author,
-        # Convert the string date to a datetime object
-        "date": datetime.strptime(article.published_date, "%Y-%m-%d"),
+        "description": article.description,
+        "date": article.published_date,
         "content": article.content,
+        "source_name" : article.source_name,
+        "image": article.image,
     }
     result = articles_collection.insert_one(article_dict)
     return str(result.inserted_id)

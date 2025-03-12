@@ -40,7 +40,7 @@ def fetch_articles():
 def dict_to_article(article_dict):
     return Article(
         title=article_dict.get("title", ""),
-        author=article_dict.get("author", ""),
+        description=article_dict.get("description", ""),
         published_date=article_dict.get("published_date", ""),
         content=article_dict.get("content", "")
     )
@@ -57,7 +57,7 @@ class HealthArticleView(Container):
         return Container(
             content=Column(controls=[
                 Text(self.article.title, size=18, weight="bold"),
-                Text(f"By {self.article.author}", size=16),
+                Text(f"By {self.article.description}", size=16),
                 Text(f"Published on: {self.article.published_date}", size=14, weight="italic"),
             ]),
             padding=10,
