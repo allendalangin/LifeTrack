@@ -1,3 +1,5 @@
+# src/views/signup_view.py
+
 import flet as ft
 
 class SignupView:
@@ -98,11 +100,11 @@ class SignupView:
             spacing=0,
         )
 
-    def on_signup_click(self, e):
+    async def on_signup_click(self, e):
         username = self.username_field.value
         password = self.password_field.value
         confirm_password = self.confirm_password_field.value
-        self.controller.handle_signup(username, password, confirm_password)
+        await self.controller.handle_signup(username, password, confirm_password)
 
     def update_status(self, message, is_success):
         self.status_text.value = message

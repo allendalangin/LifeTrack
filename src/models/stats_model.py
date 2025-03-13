@@ -1,16 +1,18 @@
-from pymongo import MongoClient
+# src/models/stats_model.py
+
+import httpx
 
 class StatsModel:
-    def __init__(self, mongo_uri):
-        self.client = MongoClient(mongo_uri)
-        self.db = self.client.statistics
-        self.by_year_collection = self.db.by_year
-        self.by_region_collection = self.db.by_region
+    def __init__(self, api_url):
+        self.api_url = api_url
 
-    def fetch_data(self, collection_name):
-        if collection_name == "by_year":
-            return list(self.by_year_collection.find())
-        elif collection_name == "by_region":
-            return list(self.by_region_collection.find())
-        else:
-            return []
+    async def fetch_data(self, collection_name):
+        """
+        Fetch statistics data from the FastAPI backend.
+        """
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{self.api_url}/stats/{collection_name}")
+            if response.status_code == 200:
+                return response.json()
+            else:
+                return []

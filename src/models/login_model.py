@@ -1,10 +1,11 @@
 # src/models/login_model.py
 
 import bcrypt
+import httpx
 
 class UserModel:
-    def __init__(self, users_collection):
-        self.users_collection = users_collection
+    def __init__(self, api_url):
+        self.api_url = api_url
 
     def hash_password(self, password):
         return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
@@ -12,15 +13,25 @@ class UserModel:
     def check_password(self, password, hashed_password):
         return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
 
-    def register_user(self, username, password):
-        if self.users_collection.find_one({"username": username}):
-            return False, "Username already exists!"
-        hashed_pw = self.hash_password(password)
-        self.users_collection.insert_one({"username": username, "password": hashed_pw})
-        return True, "Signup successful!"
+    async def register_user(self, username, password):
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{self.api_url}/user/",
+                json={"username": username, "password": self.hash_password(password)},
+            )
+            if response.status_code == 200:
+                return True, "Signup successful!"
+            elif response.status_code == 400:
+                return False, "Username already exists!"
+            else:
+                return False, "Signup failed!"
 
-    def authenticate_user(self, username, password):
-        user = self.users_collection.find_one({"username": username})
-        if user and self.check_password(password, user["password"]):
-            return True, "Login successful!", username
-        return False, "Invalid credentials!", None
+    async def authenticate_user(self, username, password):
+        async with httpx.AsyncClient() as client:
+            # Fetch user data (including hashed password) from the database
+            response = await client.get(f"{self.api_url}/user/details/{username}")
+            if response.status_code == 200:
+                user_data = response.json()
+                if self.check_password(password, user_data["password"]):
+                    return True, "Login successful!", username
+            return False, "Invalid credentials!", None

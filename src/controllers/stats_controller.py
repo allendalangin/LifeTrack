@@ -1,3 +1,5 @@
+# src/controllers/stats_controller.py
+
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
@@ -7,7 +9,10 @@ class StatsController:
         self.view = view
         self.model = model
 
-    def plot_data(self, data):
+    async def plot_data(self, data):
+        """
+        Plot data and return the image as a base64-encoded string.
+        """
         plt.figure(figsize=(10, 6))
         plt.plot([p["x"] for p in data["data_points"]], 
                  [float(p["y"]) for p in data["data_points"]],

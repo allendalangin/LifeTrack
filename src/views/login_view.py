@@ -88,10 +88,10 @@ class LoginView:
             spacing=0,
         )
 
-    def on_login_click(self, e):
+    async def on_login_click(self, e):
         username = self.username_field.value
         password = self.password_field.value
-        self.controller.handle_login(username, password)
+        await self.controller.handle_login(username, password)
 
     def update_status(self, message):
         self.status_text.value = message

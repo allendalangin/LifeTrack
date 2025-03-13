@@ -1,3 +1,5 @@
+# src/views/stats_view.py
+
 import flet as ft
 
 # Base64-encoded white image (1x1 pixel)
@@ -42,32 +44,38 @@ class StatsView:
         self.image = ft.Image(src_base64=WHITE_IMAGE_BASE64)  # Initialize with a blank white image
 
     def build(self):
-        def update_data_dropdown(e):
+        async def update_data_dropdown(e):
             if self.filter_dropdown.value == "By Year":
-                data_options = self.controller.model.fetch_data("by_year")
+                data_options = await self.controller.model.fetch_data("by_year")
             elif self.filter_dropdown.value == "By Region":
-                data_options = self.controller.model.fetch_data("by_region")
+                data_options = await self.controller.model.fetch_data("by_region")
+
             else:
                 data_options = []
             
+            print("Fetched Data Options:", data_options)  # Debugging
+            
+            # Update dropdown options
             self.data_dropdown.options = [ft.dropdown.Option(d["table_title"]) for d in data_options]
-            self.data_dropdown.update()
+            self.data_dropdown.update()  # Update the dropdown UI
+            self.page.update()  # Force a UI refresh
 
-            self.image.src_base64 = WHITE_IMAGE_BASE64  # Reset to blank white image
+            # Reset the image
+            self.image.src_base64 = WHITE_IMAGE_BASE64
             self.image.update()
 
-        def update_chart(e):
+        async def update_chart(e):
             if self.filter_dropdown.value == "By Year":
-                data_options = self.controller.model.fetch_data("by_year")
+                data_options = await self.controller.model.fetch_data("by_year")
             elif self.filter_dropdown.value == "By Region":
-                data_options = self.controller.model.fetch_data("by_region")
+                data_options = await self.controller.model.fetch_data("by_region")
             else:
                 data_options = []
             
             if self.data_dropdown.value:
                 selected_data = next((d for d in data_options if d["table_title"] == self.data_dropdown.value), None)
                 if selected_data:
-                    img_data = self.controller.plot_data(selected_data)
+                    img_data = await self.controller.plot_data(selected_data)
                     self.image.src_base64 = img_data
                     self.image.update()
 
