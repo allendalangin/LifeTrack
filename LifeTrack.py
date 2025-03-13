@@ -1,20 +1,21 @@
-# src/main.py
-
 import flet as ft
 import pymongo
 from src.models.login_model import UserModel
 from src.models.health_model import HealthModel
 from src.models.news_model import NewsModel 
+from src.models.stats_model import StatsModel  # Add this
 from src.controllers.login_controller import LoginController
 from src.controllers.signup_controller import SignupController
 from src.controllers.dashboard_controller import DashboardController
 from src.controllers.health_controller import HealthController
 from src.controllers.news_controller import NewsController 
+from src.controllers.stats_controller import StatsController  # Add this
 from src.views.login_view import LoginView
 from src.views.signup_view import SignupView
 from src.views.dashboard_view import DashboardView
 from src.views.health_view import HealthView
 from src.views.news_view import NewsView 
+from src.views.stats_view import StatsView  # Add this
 
 # MongoDB Connection (Replace with your MongoDB URI)
 MONGO_URI = "mongodb+srv://shldrlv80:MyMongoDBpass@cluster0.dhh4k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
@@ -32,6 +33,9 @@ def main(page: ft.Page):
     # Initialize the News Model and Controller
     news_model = NewsModel(NEWS_API_KEY)
     news_controller = NewsController(None, NEWS_API_KEY)  # Initialize with None view
+
+    # Initialize the Stats Model
+    stats_model = StatsModel(MONGO_URI)
 
     async def route_change(route):
         print(f"Route changed to: {route}")  # Debugging
@@ -80,6 +84,13 @@ def main(page: ft.Page):
             page.views.append(view.build())
             # Fetch news articles asynchronously
             page.run_task(news_controller.load_news)  # Use run_task for async tasks
+        elif page.route == "/stats":  # Add this
+            print("Loading statistics view...")
+            # Initialize the View and Controller for statistics
+            view = StatsView(page, None)
+            controller = StatsController(view, stats_model)
+            view.controller = controller
+            page.views.append(view.build())
         page.update()
         
     def view_pop(view):
