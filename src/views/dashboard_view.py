@@ -1,21 +1,19 @@
 # src/views/dashboard_view.py
 
 import flet as ft
-import requests  # For making API requests
 
 class DashboardView:
-    def __init__(self, page, controller, username=None):
+    def __init__(self, page, controller, username=None, news_controller=None):
         self.page = page
         self.controller = controller
         self.username = username
-        self.news_api_key = "373f805f1e35402bb154020a2aa70127"  # Your NewsAPI key
+        self.news_controller = news_controller  # Add NewsController
+        if self.news_controller:
+            self.news_controller.view = self
 
     def build(self):
         """Build and return the dashboard view."""
         print("Dashboard Loaded")
-
-        # Fetch news articles
-        news_articles = self.fetch_news_articles()
 
         # Nested row before usage
         def create_nested_row(body_color, page):
@@ -77,13 +75,11 @@ class DashboardView:
             )
 
         # Create the "Articles" section
-        articles_section = ft.Column(
+        self.articles_section = ft.Column(
             controls=[
                 ft.Text("Latest News", size=18, weight="bold"),  # Title
                 ft.ListView(
-                    controls=[
-                        self.create_news_card(article) for article in news_articles[:15]  # Show first 15 articles
-                    ],
+                    controls=[],  # Initially empty, will be populated by the NewsController
                     expand=True,  # Make the ListView expand to fill available space
                     spacing=10,
                 ),
@@ -107,7 +103,7 @@ class DashboardView:
                     col={"sm": 12, "md": 3},
                     controls=[
                         ft.Container(
-                            content=articles_section,
+                            content=self.articles_section,
                             alignment=ft.alignment.center,
                             expand=True,  # Make the Container expand to fill available space
                         ),
@@ -127,23 +123,18 @@ class DashboardView:
             bgcolor="#f2f7ff",
         )
 
-    def fetch_news_articles(self):
-        """Fetch news articles from NewsAPI."""
-        url = f"https://newsapi.org/v2/everything?q=health&apiKey={self.news_api_key}"
-        try:
-            response = requests.get(url)
-            response.raise_for_status()  # Raise an error for bad responses
-            data = response.json()
-            return data.get("articles", [])  # Return the list of articles
-        except Exception as e:
-            print(f"Error fetching news: {e}")
-            return []  # Return an empty list if there's an error
+    def update_news(self, news_articles):
+        """Update the news articles in the dashboard."""
+        self.articles_section.controls[1].controls.clear()  # Clear the ListView
+        for article in news_articles[:15]:  # Show first 15 articles
+            self.articles_section.controls[1].controls.append(self.create_news_card(article))
+        self.page.update()
 
     def create_news_card(self, article):
         """Create a news card for an article."""
         title = article.get("title", "No Title")
         image_url = article.get("urlToImage", "")
-        description = article.get("description", "No description available.")
+        description = article.get("description", "")  # Default to empty string if description is None
 
         return ft.Card(
             content=ft.Container(
@@ -156,7 +147,7 @@ class DashboardView:
                             fit=ft.ImageFit.COVER,
                         ) if image_url else ft.Text("No Image Available"),
                         ft.Text(title, size=14, weight="bold"),
-                        ft.Text(description[:100] + "...", size=12),  # Show only the first 100 characters
+                        ft.Text((description[:100] + "...") if description else "No description available.", size=12),  # Handle None description
                     ],
                     spacing=5,
                 ),
@@ -245,3 +236,8 @@ class DashboardView:
                     ),
                 ],
             )
+
+    async def load_news(self):
+        """Load news articles asynchronously."""
+        if self.news_controller:
+            await self.news_controller.load_news()  # Call the correct method
