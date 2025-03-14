@@ -9,7 +9,7 @@ class DashboardView:
         self.username = username
         self.news_controller = news_controller  # Add NewsController
         if self.news_controller:
-            self.news_controller.view = self
+            self.news_controller.view = self  # Set the view reference in the controller
 
     def build(self):
         """Build and return the dashboard view."""
@@ -85,7 +85,7 @@ class DashboardView:
                 ),
                 ft.ElevatedButton(
                     text="See more news",
-                    on_click=lambda e: self.controller.handle_navigation("/news"),  # Navigate to /news
+                    on_click=lambda e: self.page.go("/news"),  # Navigate to /news
                 ),
             ],
             expand=True,  # Make the Column expand to fill available space
@@ -130,30 +130,41 @@ class DashboardView:
             self.articles_section.controls[1].controls.append(self.create_news_card(article))
         self.page.update()
 
+    # src/views/dashboard_view.py
+
     def create_news_card(self, article):
         """Create a news card for an article."""
-        title = article.get("title", "No Title")
-        image_url = article.get("urlToImage", "")
-        description = article.get("description", "")  # Default to empty string if description is None
+        title = article.title  # Access the title attribute directly
+        image_url = article.image  # Access the image attribute directly
+        description = article.description  # Access the description attribute directly
 
-        return ft.Card(
-            content=ft.Container(
-                content=ft.Column(
-                    controls=[
-                        ft.Image(
-                            src=image_url,
-                            width=200,
-                            height=100,
-                            fit=ft.ImageFit.COVER,
-                        ) if image_url else ft.Text("No Image Available"),
-                        ft.Text(title, size=14, weight="bold"),
-                        ft.Text((description[:100] + "...") if description else "No description available.", size=12),  # Handle None description
-                    ],
-                    spacing=5,
+        return ft.GestureDetector(
+            content=ft.Card(
+                content=ft.Container(
+                    content=ft.Column(
+                        controls=[
+                            ft.Image(
+                                src=image_url,
+                                width=200,
+                                height=100,
+                                fit=ft.ImageFit.COVER,
+                            ) if image_url else ft.Text("No Image Available"),
+                            ft.Text(title, size=14, weight="bold"),
+                            ft.Text((description[:100] + "...") if description else "No description available.", size=12),  # Handle empty description
+                        ],
+                        spacing=5,
+                    ),
+                    padding=10,
                 ),
-                padding=10,
             ),
+            on_tap=lambda e: self.navigate_to_article_details(article),  # Make the card clickable
         )
+
+    def navigate_to_article_details(self, article):
+        """Navigate to the article details view."""
+        setattr(self.page, "selected_article", article)  # Store the selected article
+        setattr(self.page, "source_route", "/home")  # Store the source route
+        self.page.go("/article-details")  # Navigate to the article details view
 
     def navigate_to(self, destination):
         """Navigate to the specified route."""

@@ -53,7 +53,6 @@ class StatsView:
             else:
                 data_options = []
             
-            print("Fetched Data Options:", data_options)  # Debugging
             
             # Update dropdown options
             self.data_dropdown.options = [ft.dropdown.Option(d["table_title"]) for d in data_options]

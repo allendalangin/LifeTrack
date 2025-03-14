@@ -1,11 +1,14 @@
+# src/models/health_model.py
+
 import time
 import googlemaps
 import requests
 
+API_KEY = 'AIzaSyDaIfQ1cDwj4MaQcf-uuys1yJNx1fI-Tpg'  # Replace with your Google Maps API key
+
 class HealthModel:
-    def __init__(self, api_key):
-        self.api_key = api_key
-        self.map_client = googlemaps.Client(api_key)
+    def __init__(self):
+        self.map_client = googlemaps.Client(API_KEY)  # Initialize the Google Maps client with the API key
 
     def miles_to_meters(self, miles):
         """Convert miles to meters."""
@@ -52,7 +55,7 @@ class HealthModel:
 
     def get_photo_url(self, photo_reference, max_width=400):
         """Generate a URL for a photo using its photo_reference."""
-        return f"https://maps.googleapis.com/maps/api/place/photo?maxwidth={max_width}&photoreference={photo_reference}&key={self.api_key}"
+        return f"https://maps.googleapis.com/maps/api/place/photo?maxwidth={max_width}&photoreference={photo_reference}&key={API_KEY}"  # Use the global API_KEY
 
     def search_nearby(self, lat, lng, mode):
         """Search for nearby places based on the mode (hospitals or pharmacies)."""
@@ -94,7 +97,7 @@ class HealthModel:
         url = "https://maps.googleapis.com/maps/api/place/autocomplete/json"
         params = {
             "input": query,
-            "key": self.api_key,
+            "key": API_KEY,  # Use the global API_KEY
             "types": "geocode",  # Restrict to geographic locations
         }
         response = requests.get(url, params=params)
