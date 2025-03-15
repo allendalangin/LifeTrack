@@ -1,4 +1,3 @@
-# lifetrack.py
 import flet as ft
 import httpx
 from urllib.parse import urlparse, parse_qs
@@ -21,11 +20,11 @@ from src.views.login_view import LoginView
 from src.views.signup_view import SignupView
 from src.views.dashboard_view import DashboardView
 from src.views.health_view import HealthView
+from src.views.profile_view import ProfileView
 from src.views.stats_view import StatsView
 from src.views.health_articles_view import HealthArticlesView
 from src.views.article_details_view import ArticleDetailsView
 from src.views.infographics_view import InfographicsView
-
 
 FASTAPI_URL = "http://127.0.0.1:8000"
 NEWS_API_KEY = "5111ef64cdb0c0c8bc6e35bcef2f82e5"
@@ -44,7 +43,6 @@ def main(page: ft.Page):
         page.views.clear()
         if page.route == "/login":
             print("Loading login view...")
-            # Initialize the Model, Controller, and View for login
             model = UserModel(FASTAPI_URL)
             view = LoginView(page, None)
             controller = LoginController(view, FASTAPI_URL)
@@ -52,45 +50,27 @@ def main(page: ft.Page):
             page.views.append(view.build())
         elif page.route == "/home":
             print("Loading dashboard...")
-            # Fetch username from the page object
-            username = getattr(page, "username", None)  # Get username or None if not set
-
+            username = getattr(page, "username", None)
             view = DashboardView(page, None, article_controller)
-            controller = DashboardController(view, weather_controller)  # Pass weather_controller
+            controller = DashboardController(view, weather_controller)
             view.controller = controller
+            page.dashboard_controller = controller  # Store the controller in the page object
             page.views.append(view.build())
-            page.run_task(view.load_news)  # Load news articles
-            page.run_task(controller.load_weather_data)  # Load weather data
+            page.run_task(view.load_news)
+            page.run_task(controller.load_weather_data)
         elif page.route == "/signup":
             print("Loading signup view...")
-            # Initialize the Model, Controller, and View for signup
             model = UserModel(FASTAPI_URL)
             view = SignupView(page, None)
             controller = SignupController(view, FASTAPI_URL)
             view.controller = controller
             page.views.append(view.build())
-        elif page.route.startswith("/home"):
-            print("Loading dashboard...")
-            # Extract username from query parameters
-            parsed_url = urlparse(page.route)  # Use urlparse
-            query_params = parse_qs(parsed_url.query)  # Use parse_qs
-            username = query_params.get("username", [None])[0]
-            # If username is not in the route, fetch it from the page object
-            if username is None and hasattr(page, "username"):
-                username = page.username
-
-            view = DashboardView(page, None, username, article_controller)
-            controller = DashboardController(view, weather_controller)  # Pass weather_controller
-            view.controller = controller
-            page.views.append(view.build())
-            page.run_task(view.load_news)  # Load news articles
-            page.run_task(controller.load_weather_data)  # Load weather data
         elif page.route == "/health":
             print("Loading health resources...")
             model = HealthModel()
-            view = HealthView(page, None)
-            controller = HealthController(view, model)
-            view.controller = controller
+            view = HealthView(page, None)  # Pass None as the controller
+            controller = HealthController(view, model)  # Create a new controller
+            view.controller = controller  # Assign the controller to the view
             page.views.append(view.build())
         elif page.route == "/news":
             print("Loading news view...")
@@ -98,7 +78,6 @@ def main(page: ft.Page):
             page.views.append(view)
             page.run_task(view.fetch_and_display_articles)
         elif page.route == "/article-details":
-            # Load article details view
             view = ArticleDetailsView(page)
             page.views.append(view)
         elif page.route == "/stats":
@@ -109,17 +88,29 @@ def main(page: ft.Page):
             page.views.append(view.build())
         elif page.route == "/infographics":
             print("Loading infographics view...")
-            view = InfographicsView(page)  # Initialize InfographicsView
-            controller = InfographicsController(view)  # Initialize InfographicsController
-            view.controller = controller  # Assign controller to view
-            page.views.append(view.build())  # Build and append the view
-            page.run_task(controller.load_infographics)  # Load infographics
+            view = InfographicsView(page)
+            controller = InfographicsController(view)
+            view.controller = controller
+            page.views.append(view.build())
+            page.run_task(controller.load_infographics)
         elif page.route == "/vaccination":
             print("Loading vaccination schedule view...")
             view = VaccinationScheduleView(page)  # Initialize VaccinationScheduleView
+            page.views.append(view)
+        elif page.route == "/profile":
+            print("Loading profile view...")
+            # Reuse the existing controller from the dashboard
+            if hasattr(page, "dashboard_controller"):
+                controller = page.dashboard_controller
+            else:
+                # If the controller doesn't exist, create a new one
+                view = DashboardView(page, None, article_controller)
+                controller = DashboardController(view, weather_controller)
+                page.dashboard_controller = controller  # Store the controller in the page object
+            view = ProfileView(page, controller)  # Pass the controller to the ProfileView
             page.views.append(view.build())
         page.update()
-        
+
     def view_pop(view):
         page.views.pop()
         top_view = page.views[-1]

@@ -208,7 +208,7 @@ class DashboardView:
         print("Dashboard Loaded")
 
         # Create weather data containers
-        self.air_quality_container = self.create_weather_data_container(ft.icons.FILTER, "N/A", "N/A")
+        self.air_quality_container = self.create_weather_data_container(ft.icons.CLOUD, "N/A", "N/A")
         self.temperature_container = self.create_weather_data_container(ft.icons.THERMOSTAT, "N/A", "N/A")
         self.humidity_container = self.create_weather_data_container(ft.icons.WATER_DROP, "N/A", "N/A")
         self.uv_index_container = self.create_weather_data_container(ft.icons.WB_SUNNY, "N/A", "N/A")
@@ -409,7 +409,6 @@ class DashboardView:
                 center_title=True,
                 toolbar_height=50,
                 actions=[
-                    # Wrap PopupMenuButton in a Container to center it vertically
                     ft.Container(
                         content=ft.PopupMenuButton(
                             icon=ft.icons.SETTINGS,
@@ -417,7 +416,7 @@ class DashboardView:
                             items=[
                                 ft.PopupMenuItem(
                                     text="Profile",
-                                    on_click=lambda e: print("Profile clicked"),
+                                    on_click=lambda e: page.go("/profile"),  # Navigate to profile view
                                 ),
                                 ft.PopupMenuItem(
                                     text="Logout",
@@ -429,7 +428,6 @@ class DashboardView:
                     ),
                 ],
             )
-
     async def load_news(self):
         """Load news articles asynchronously."""
         if self.news_controller:

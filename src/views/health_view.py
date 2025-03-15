@@ -50,25 +50,27 @@ class HealthView:
             db = client["health_resources"]
             collection = db["hotline"]
 
-            # Fetch all hotline data
-            hotlines = list(collection.find({}))
+            # Fetch all hotline data with specific fields
+            hotlines = list(collection.find({}, {"_id": 0, "department_name": 1, "phone_number": 1, "telephone_number": 1, "email": 1}))
 
             # Clear existing hotlines
             self.hotlines_container.controls.clear()
 
             # Add hotline data as cards
             for hotline in hotlines:
-                name = hotline.get("name", "N/A")
-                phone = hotline.get("phone", "N/A")
-                description = hotline.get("description", "N/A")
+                department_name = hotline.get("department_name", "N/A")
+                phone_number = hotline.get("phone_number", "N/A")
+                telephone_number = hotline.get("telephone_number", "N/A")
+                email = hotline.get("email", "N/A")
 
                 hotline_card = ft.Card(
                     content=ft.Container(
                         content=ft.Column(
                             controls=[
-                                ft.Text(f"Name: {name}", size=16, weight="bold"),
-                                ft.Text(f"Phone: {phone}", size=14),
-                                ft.Text(f"Description: {description}", size=14),
+                                ft.Text(f"Department: {department_name}", size=16, weight="bold"),
+                                ft.Text(f"Phone Number: {phone_number}", size=14),
+                                ft.Text(f"Telephone Number: {telephone_number}", size=14),
+                                ft.Text(f"Email: {email}", size=14),
                             ],
                             spacing=5,
                         ),
@@ -82,7 +84,6 @@ class HealthView:
             self.page.update()
         except Exception as e:
             print(f"Error fetching hotlines: {e}")
-
     # Helper function to create selectable containers
     def create_selectable_container(self, text, bgcolor, on_click):
         return ft.Container(
@@ -199,7 +200,6 @@ class HealthView:
     # Function to handle "Use Current Location" button click
     async def use_current_location(self, e):
         """Handle the 'Use Current Location' button click."""
-        self.update_status("Fetching results...")  # Show "Fetching results..." message
         try:
             await self.controller.use_current_location()  # Perform the location search
         except Exception as ex:
@@ -209,8 +209,7 @@ class HealthView:
 
     # Function to handle "Submit Custom Location" button click
     async def submit_custom_location(self, e):
-        """Handle the 'Submit Custom Location' button click."""
-        self.update_status("Fetching results...")  # Show "Fetching results..." message
+        """Handle the 'Submit Custom Location' button click.""" # Show "Fetching results..." message
         try:
             location = self.custom_location.value
             if not location:  # Check if the location is empty

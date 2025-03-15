@@ -6,4 +6,11 @@ class VaccinationScheduleController:
 
     def fetch_schedules(self):
         """Fetch vaccination schedules from the model."""
-        return self.model.fetch_schedules()
+        try:
+            schedules = self.model.fetch_schedules()
+            if not schedules:
+                print("No vaccination schedules found.")
+            return schedules
+        except Exception as e:
+            print(f"Error fetching schedules: {e}")
+            return []

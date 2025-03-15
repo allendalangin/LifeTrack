@@ -17,6 +17,7 @@ stats_db = client["statistics"]
 users_collection = user_db["users"]
 health_db = client["health_resources"]
 infographics_collection = health_db["infographics"]
+client_db = client["vaccination"]
 
 # Pydantic model for User
 class User(BaseModel):
@@ -78,8 +79,9 @@ async def get_statistics(collection_name: str):
 @app.get("/vaccination_schedules")
 async def get_vaccination_schedules():
     """Fetch all vaccination schedules from MongoDB."""
-    schedules = list(client["vaccination_db"]["vaccination_schedules"].find({}, {"_id": 0}))  # Exclude _id field
+    schedules = list(client_db["vaccination_schedules"].find({}, {"_id": 0}))  # Exclude _id field
     if schedules:
+        print(schedules)
         return schedules
     raise HTTPException(status_code=404, detail="No vaccination schedules found.")
 
