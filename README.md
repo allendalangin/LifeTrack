@@ -9,12 +9,19 @@ pip install flet==0.26.0 googlemaps requests pymongo fastapi pydantic bcrypt clo
 ```
 ## Components
 To complete this application, we used Python as our programming language.
+
 **Dependencies**
+
 We used Flet, a Python-based library to create our user interface. We use MongoDB to store data as well as Cloudinary to store image files. 
+
 **APIs Used**
+
 To connect MongoDB to our Flet UI, we used FastAPI as a centralized API. To fetch data, we also used:
+
   Google Cloud: Places API and Air Quality API
+
   OpenWeather: OneCall API
+  
   GNEws: News API
   
 ## Running the Application
@@ -54,18 +61,32 @@ python LifeTrack.py
 
 ## Features
 **Login and Sign Up**
+
 You can Authenticate a user's Username and Password
 
 **Dashboard**
+
 The Dashboard reflects the username and the current air quality, temperature, humidity, UV index, and wind speed.
+
 Within the Dashboard, you can access the following: 
+
   **Vaccination Schedules**
+  
   You can view future vaccination schedules, from the location, date, and time.
+  
   **Health Resources**
+  
   You can search for nearby hospitals/pharmacies, or view available hotlines of different health departments.
+  
   **Statistics**
+  
   You can view health statistics in the Philippines based on your chosen category.
+  
   **Infographics**
+  
   You can view infographics about certain diseases.
+  
   **News Articles**
+  
   You can view current news about health as well as reflect the news content.
+
