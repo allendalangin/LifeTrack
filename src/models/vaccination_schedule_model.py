@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from pymongo import MongoClient
 
 class VaccinationScheduleModel:
@@ -10,3 +11,13 @@ class VaccinationScheduleModel:
         """Fetch all vaccination schedules from MongoDB."""
         schedules = list(self.collection.find({}, {"_id": 0}))  # Exclude _id field
         return schedules if schedules else []
+=======
+class Vaccination:
+    month : str
+    hospital : str
+    location : str
+    date : str
+    time : str
+    vaccine : str
+    
+>>>>>>> b68276fb17266da6ae1e5f546f4c353f6d64abc8

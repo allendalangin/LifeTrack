@@ -83,7 +83,6 @@ async def get_vaccination_schedules():
         return schedules
     raise HTTPException(status_code=404, detail="No vaccination schedules found.")
 
-
 # Run the FastAPI app
 if __name__ == "__main__":
     import uvicorn
