@@ -11,4 +11,5 @@ class LoginController:
         success, message, username = await self.model.authenticate_user(username, password)
         self.view.update_status(message)
         if success:
-            self.view.navigate_to_home(username)
+            self.view.page.username = username  # Store the username in the page object
+            self.view.navigate_to_home()

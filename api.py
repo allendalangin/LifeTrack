@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from pymongo import MongoClient
 from pydantic import BaseModel
 import bcrypt
+import base64
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -14,6 +15,8 @@ client = MongoClient(MONGO_URI)
 user_db = client["UserData_db"]
 stats_db = client["statistics"]
 users_collection = user_db["users"]
+health_db = client["health_resources"]
+infographics_collection = health_db["infographics"]
 
 # Pydantic model for User
 class User(BaseModel):
@@ -71,6 +74,15 @@ async def get_statistics(collection_name: str):
         raise HTTPException(status_code=404, detail="Collection not found")
     
     return data
+
+@app.get("/vaccination_schedules")
+async def get_vaccination_schedules():
+    """Fetch all vaccination schedules from MongoDB."""
+    schedules = list(client["vaccination_db"]["vaccination_schedules"].find({}, {"_id": 0}))  # Exclude _id field
+    if schedules:
+        return schedules
+    raise HTTPException(status_code=404, detail="No vaccination schedules found.")
+
 
 # Run the FastAPI app
 if __name__ == "__main__":

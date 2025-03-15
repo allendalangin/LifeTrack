@@ -5,8 +5,8 @@ from pymongo.server_api import ServerApi
 # MongoDB Connection
 uri = "mongodb+srv://shldrlv80:MyMongoDBpass@cluster0.dhh4k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = MongoClient(uri, server_api=ServerApi('1'))
-db = client.cluster0 # Database name
-collection = db.test  # Collection name
+db = client.statistics # Database name
+collection = db.by_year  # Collection name
 
 def main(page: ft.Page):
     page.title = "Statistics Input App"

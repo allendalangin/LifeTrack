@@ -97,5 +97,5 @@ class LoginView:
         self.status_text.value = message
         self.status_text.update()
 
-    def navigate_to_home(self, username):
-        self.page.go(f"/home?username={username}")
+    def navigate_to_home(self):
+        self.page.go("/home")

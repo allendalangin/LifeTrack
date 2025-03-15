@@ -1,5 +1,6 @@
 import flet as ft
-import webbrowser  # For opening URLs
+import webbrowser
+from pymongo import MongoClient
 
 class HealthView:
     def __init__(self, page, controller):
@@ -11,25 +12,76 @@ class HealthView:
         self.fetching_data_text = ft.Text("", visible=True)  # Initially empty and hidden
         self.results_container = ft.ListView(expand=True, spacing=10, padding=20, auto_scroll=False)
         self.autocomplete_dropdown = ft.Column(visible=False, spacing=5)
-        self.custom_location = ft.TextField(hint_text="Enter a location", expand=True, on_change=self.on_search_change)
+        self.custom_location = ft.TextField(label="Enter a location",
+                                            expand=True, 
+                                            color="#0cb4cc",
+                                            border_color="#0cb4cc",
+                                            border_width=1,
+                                            border_radius=10,
+                                            label_style=ft.TextStyle(color="#0cb4cc"),
+                                            on_change=self.on_search_change)
         self.search_mode_button = ft.ElevatedButton(
             "Search for Pharmacies/Drug Stores",
             on_click=self.toggle_search_mode,
         )
 
         # Containers for Hospital and Pharmacy Search
-        self.hospital_container = self.create_selectable_container("Hospital Search", ft.colors.AMBER_500, self.select_hospital_mode)
-        self.pharmacy_container = self.create_selectable_container("Pharmacy Search", ft.colors.GREEN_300, self.select_pharmacy_mode)
+        self.hospital_container = self.create_selectable_container("Hospital Search", "#0cb4cc", self.select_hospital_mode)
+        self.pharmacy_container = self.create_selectable_container("Pharmacy Search", "#0cb4cc", self.select_pharmacy_mode)
 
-    def update_status(self, message, visible=True):
-        """
-        Update the status message in the UI.
-        :param message: The message to display (e.g., "Fetching results...").
-        :param visible: Whether the message should be visible.
-        """
-        self.fetching_data_text.value = message  # Update the text
-        self.fetching_data_text.visible = visible  # Show or hide the text
-        self.page.update()  # Refresh the UI
+        # Hotlines Container
+        self.hotlines_container = ft.Column(
+            expand=True,
+            scroll=ft.ScrollMode.AUTO,
+            spacing=10,
+        )
+
+        # Set default selected container to Hospital
+        self.select_hospital_mode(None)  # Initialize with Hospital selected
+
+        # Fetch hotline data on initialization
+        self.page.run_task(self.fetch_hotlines)
+
+    async def fetch_hotlines(self):
+        """Fetch hotline data from MongoDB and display it in the hotlines container."""
+        try:
+            # Connect to MongoDB
+            client = MongoClient("mongodb+srv://shldrlv80:MyMongoDBpass@cluster0.dhh4k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+            db = client["health_resources"]
+            collection = db["hotline"]
+
+            # Fetch all hotline data
+            hotlines = list(collection.find({}))
+
+            # Clear existing hotlines
+            self.hotlines_container.controls.clear()
+
+            # Add hotline data as cards
+            for hotline in hotlines:
+                name = hotline.get("name", "N/A")
+                phone = hotline.get("phone", "N/A")
+                description = hotline.get("description", "N/A")
+
+                hotline_card = ft.Card(
+                    content=ft.Container(
+                        content=ft.Column(
+                            controls=[
+                                ft.Text(f"Name: {name}", size=16, weight="bold"),
+                                ft.Text(f"Phone: {phone}", size=14),
+                                ft.Text(f"Description: {description}", size=14),
+                            ],
+                            spacing=5,
+                        ),
+                        padding=10,
+                    ),
+                    margin=5,
+                )
+                self.hotlines_container.controls.append(hotline_card)
+
+            # Update the UI
+            self.page.update()
+        except Exception as e:
+            print(f"Error fetching hotlines: {e}")
 
     # Helper function to create selectable containers
     def create_selectable_container(self, text, bgcolor, on_click):
@@ -62,15 +114,15 @@ class HealthView:
     # Function to handle hospital mode selection
     def select_hospital_mode(self, e):
         self.search_mode = "hospitals"
-        self.hospital_container.bgcolor = ft.colors.AMBER_500  # Darken the color
-        self.pharmacy_container.bgcolor = ft.colors.GREEN_300  # Reset pharmacy container color
+        self.hospital_container.bgcolor = "#0a9eb8"  # Darken the color for selected
+        self.pharmacy_container.bgcolor = "#0cb4cc"  # Reset pharmacy container color
         self.page.update()
 
     # Function to handle pharmacy mode selection
     def select_pharmacy_mode(self, e):
         self.search_mode = "pharmacies"
-        self.pharmacy_container.bgcolor = ft.colors.GREEN_500  # Darken the color
-        self.hospital_container.bgcolor = ft.colors.AMBER_300  # Reset hospital container color
+        self.pharmacy_container.bgcolor = "#0a9eb8"  # Darken the color for selected
+        self.hospital_container.bgcolor = "#0cb4cc"  # Reset hospital container color
         self.page.update()
 
     # Function to toggle search mode (optional, if you still want the button)
@@ -90,6 +142,7 @@ class HealthView:
                 suggestion_text = suggestion.get("description", "")
                 self.autocomplete_dropdown.controls.append(
                     ft.TextButton(
+                        style=ft.ButtonStyle(color="#0cb4cc"),
                         text=suggestion_text,
                         on_click=lambda e, s=suggestion: self.select_suggestion(s),
                     )
@@ -126,7 +179,7 @@ class HealthView:
                                 ft.TextButton(
                                     text=f"URL: {url}",
                                     on_click=lambda e, u=url: webbrowser.open(u),  # Open URL on click
-                                    style=ft.ButtonStyle(color=ft.colors.BLUE),
+                                    style=ft.ButtonStyle(color="#0cb4cc"),
                                 ),
                             ],
                             spacing=5,
@@ -283,8 +336,8 @@ class HealthView:
         search_row = ft.Row(
             controls=[
                 self.custom_location,
-                ft.ElevatedButton("Use Current Location", on_click=self.use_current_location),
-                ft.ElevatedButton("Search Custom Location", on_click=self.submit_custom_location),
+                ft.ElevatedButton("Use Current Location", on_click=self.use_current_location, color="#0cb4cc"),
+                ft.ElevatedButton("Search Custom Location", on_click=self.submit_custom_location, color="#0cb4cc"),
             ],
             alignment=ft.MainAxisAlignment.CENTER,
             spacing=10,
@@ -321,7 +374,7 @@ class HealthView:
                     col={"sm": 12, "md": 3},
                     controls=[
                         ft.Container(
-                            content=self.create_selectable_container("Hotlines", ft.colors.YELLOW_200, None),
+                            content=self.hotlines_container,
                             alignment=ft.alignment.center,
                             expand=True,
                         ),

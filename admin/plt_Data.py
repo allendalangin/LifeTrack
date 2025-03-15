@@ -1,4 +1,4 @@
-import flet as ft
+import matplotlib.pyplot as plt
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
@@ -22,80 +22,33 @@ collection = db.statistics  # Collection name
 # Fetch all documents from the collection
 data = list(collection.find({}))
 
-# Main Flet app
-def main(page: ft.Page):
-    page.title = "Statistics Graphs"
-    page.scroll = "auto"  # Enable scrolling on the page
+# Iterate through each document and plot the data
+for document in data:
+    # Extract data for plotting
+    table_title = document['table_title']
+    x_axis_label = document['x_axis_label']
+    y_axis_label = document['y_axis_label']
+    data_points = document['data_points']
 
-    # Create a column to hold all the graphs
-    graphs_column = ft.Column(scroll="auto", expand=True)
+    # Prepare x and y values
+    x_values = [point['x'] for point in data_points]
+    y_values = [int(point['y']) for point in data_points]  # Convert y values to integers
 
-    # Iterate through each document and create a graph
-    for document in data:
-        table_title = document['table_title']
-        x_axis_label = document['x_axis_label']
-        y_axis_label = document['y_axis_label']
-        data_points = document['data_points']
+    # Create a new figure for each plot
+    plt.figure(figsize=(10, 5))
 
-        # Prepare data for the chart
-        x_values = [point['x'] for point in data_points]
-        y_values = [int(point['y']) for point in data_points]  # Convert y values to integers
+    # Plot the data
+    plt.plot(x_values, y_values, marker='o', linestyle='-', color='b')
 
-        # Create a line chart
-        chart = ft.LineChart(
-            data_series=[
-                ft.LineChartData(
-                    data_points=[
-                        ft.LineChartDataPoint(i, y_values[i]) for i in range(len(x_values))
-                    ],
-                    stroke_width=2,
-                    color=ft.colors.BLUE,  # Use deprecated colors enum
-                    curved=True,
-                ),
-            ],
-            left_axis=ft.ChartAxis(
-                labels=[
-                    ft.ChartAxisLabel(
-                        value=y_values[i],
-                        label=ft.Text(str(y_values[i])),
-                    ) for i in range(len(y_values))
-                ],
-                labels_size=40,
-            ),
-            bottom_axis=ft.ChartAxis(
-                labels=[
-                    ft.ChartAxisLabel(
-                        value=i,
-                        label=ft.Text(x_values[i]),
-                    ) for i in range(len(x_values))
-                ],
-                labels_size=40,
-            ),
-            tooltip_bgcolor=ft.colors.with_opacity(0.8, ft.colors.WHITE),  # Use deprecated with_opacity
-            expand=True,
-        )
+    # Add titles and labels
+    plt.title(table_title)
+    plt.xlabel(x_axis_label)
+    plt.ylabel(y_axis_label)
+    plt.grid(True)
 
-        # Add the chart to the column
-        graphs_column.controls.append(
-            ft.Container(
-                content=ft.Column(
-                    [
-                        ft.Text(table_title, size=18, weight="bold"),
-                        ft.Text(f"X-Axis: {x_axis_label}", size=14),
-                        ft.Text(f"Y-Axis: {y_axis_label}", size=14),
-                        chart,
-                    ],
-                    spacing=10,
-                ),
-                padding=10,
-                border=ft.border.all(1, ft.colors.GREY_300),  # Use deprecated colors enum
-                border_radius=5,
-                margin=ft.margin.symmetric(vertical=5),
-            )
-        )
+    # Rotate x-axis labels for better readability
+    plt.xticks(rotation=45)
 
-    # Add the column to the page
-    page.add(graphs_column)
-
-# Run the Flet app
-ft.app(target=main)
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
