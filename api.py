@@ -72,6 +72,14 @@ async def get_statistics(collection_name: str):
     
     return data
 
+@app.get("/vaccination_schedules")
+async def get_vaccination_schedules():
+    """Fetch all vaccination schedules from MongoDB."""
+    schedules = list(client["vaccination_db"]["vaccination_schedules"].find({}, {"_id": 0}))  # Exclude _id field
+    if schedules:
+        return schedules
+    raise HTTPException(status_code=404, detail="No vaccination schedules found.")
+
 # Run the FastAPI app
 if __name__ == "__main__":
     import uvicorn
