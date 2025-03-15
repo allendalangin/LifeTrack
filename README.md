@@ -9,7 +9,7 @@ pip install flet==0.26.0 googlemaps requests pymongo fastapi pydantic bcrypt clo
 ```
 ## Components
 To complete this application, we used Python as our programming language.
-## Dependencies
+**Dependencies**
 We used Flet, a Python-based library to create our user interface. We use MongoDB to store data as well as Cloudinary to store image files. 
 **APIs Used**
 To connect MongoDB to our Flet UI, we used FastAPI as a centralized API. To fetch data, we also used:
