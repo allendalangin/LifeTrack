@@ -389,22 +389,51 @@ class DashboardView:
             container.on_click = lambda e: self.controller.handle_navigation(destination)
 
         return container
+    def show_username_dialog(self):
+        """Display a dialog to change the username."""
+        new_username_input = ft.TextField(label="Enter new username", autofocus=True)
+
+        async def submit_username(e):
+            new_username = new_username_input.value.strip()
+            if new_username:
+                response = await self.controller.update_username(self.username, new_username)
+                if response:
+                    self.username = new_username
+                    self.page.snack_bar = ft.SnackBar(ft.Text("Username updated successfully!"))
+                    self.page.update()
+                    self.page.go(f"/home?username={new_username}")  # Refresh dashboard with new username
+                else:
+                    self.page.snack_bar = ft.SnackBar(ft.Text("Error updating username."))
+                    self.page.update()
+
+        dialog = ft.AlertDialog(
+            title=ft.Text("Change Username"),
+            content=new_username_input,
+            actions=[
+                ft.TextButton("Cancel", on_click=lambda e: self.close_dialog()),
+                ft.TextButton("Submit", on_click=submit_username),
+            ],
+        )
+        self.page.dialog = dialog
+        dialog.open = True
+        self.page.update()
+
 
     class DetailsAppBar(ft.AppBar):
-        """Custom app bar for the dashboard."""
-        def __init__(self, page):
+
+        def __init__(self, page, dashboard_view):
             super().__init__(
                 title=ft.Column(
                     controls=[
-                        ft.Container(height=3),  
+                        ft.Container(height=3),
                         ft.Image(
                             src="src/assets/LifeTrackLogo.png",
                             height=55,
                             fit=ft.ImageFit.FIT_HEIGHT,
                         ),
                     ],
-                    alignment=ft.MainAxisAlignment.CENTER, 
-                    horizontal_alignment=ft.CrossAxisAlignment.CENTER, 
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 ),
                 center_title=True,
                 toolbar_height=50,
@@ -412,7 +441,7 @@ class DashboardView:
                     ft.Container(
                         content=ft.PopupMenuButton(
                             icon=ft.icons.SETTINGS,
-                            icon_color="#0cb4cc",  # Set icon color to #0cb4cc
+                            icon_color="#0cb4cc",
                             items=[
                                 ft.PopupMenuItem(
                                     text="Profile",
@@ -424,7 +453,7 @@ class DashboardView:
                                 ),
                             ],
                         ),
-                        alignment=ft.alignment.center,  # Center the icon vertically
+                        alignment=ft.alignment.center,
                     ),
                 ],
             )

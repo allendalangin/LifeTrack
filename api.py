@@ -85,6 +85,19 @@ async def get_vaccination_schedules():
         return schedules
     raise HTTPException(status_code=404, detail="No vaccination schedules found.")
 
+@app.put("/user/update_username")
+async def update_username(old_username: str, new_username: str):
+    user = users_collection.find_one({"username": old_username})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if users_collection.find_one({"username": new_username}):
+        raise HTTPException(status_code=400, detail="Username already taken")
+
+    users_collection.update_one({"username": old_username}, {"$set": {"username": new_username}})
+    return {"message": "Username updated successfully"}
+
+
 # Run the FastAPI app
 if __name__ == "__main__":
     import uvicorn

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from pymongo import MongoClient
 
 class DashboardController:
@@ -8,17 +9,20 @@ class DashboardController:
         self.client = MongoClient("mongodb+srv://shldrlv80:MyMongoDBpass@cluster0.dhh4k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
         self.db = self.client.UserData_db
         self.users_collection = self.db.users
+=======
+import httpx
+>>>>>>> 5134dac723c5db5e2f5d079ca5f881af51480d4b
 
-    async def load_weather_data(self):
-        """Fetch weather data and update the view."""
-        weather_data = await self.weather_controller.fetch_weather_data()
-        if weather_data:
-            self.view.update_weather_ui(weather_data)
+class DashboardController:
+    def __init__(self, view):
+        self.view = view
+        self.api_url = "http://127.0.0.1:8000"
 
     def handle_navigation(self, destination):
         """Handle navigation to the specified destination."""
         self.view.navigate_to(destination)
 
+<<<<<<< HEAD
     async def update_username(self, new_username):
         """Update the username in MongoDB."""
         if not new_username:
@@ -40,3 +44,13 @@ class DashboardController:
             print("Username updated successfully.")
         else:
             print("Failed to update username.")
+=======
+    async def update_username(self, old_username, new_username):
+        """Call API to update username."""
+        async with httpx.AsyncClient() as client:
+            response = await client.put(f"{self.api_url}/user/update_username",
+                                        params={"old_username": old_username, "new_username": new_username})
+            if response.status_code == 200:
+                return True
+            return False
+>>>>>>> 5134dac723c5db5e2f5d079ca5f881af51480d4b
