@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from pymongo import MongoClient
 from pydantic import BaseModel
 import bcrypt
+import base64
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -14,6 +15,8 @@ client = MongoClient(MONGO_URI)
 user_db = client["UserData_db"]
 stats_db = client["statistics"]
 users_collection = user_db["users"]
+health_db = client["health_resources"]
+infographics_collection = health_db["infographics"]
 
 # Pydantic model for User
 class User(BaseModel):

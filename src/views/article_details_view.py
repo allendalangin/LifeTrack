@@ -53,16 +53,29 @@ def ArticleDetailsView(page: ft.Page):
                     # Big image at the top
                     Image(
                         src=article.image,
-                        width=600,
+                        width=page.window.width,  # Set width to window width
                         height=400,
                         fit=ft.ImageFit.COVER
                     ),
-                    Text(article.title, size=24, weight="bold"),
-                    Text(f"Description: {article.description}", size=16, italic=True),
-                    Text(f"Publish Date: {article.published_date}", size=12, color=ft.Colors.GREY),
                     Container(
-                        content=Text(article.content, width=700),
-                        padding=10
+                        content=Text(article.title, size=24, weight="bold"),
+                        padding=10,
+                        width=page.window.width,  # Set width to window width
+                    ),
+                    Container(
+                        content=Text(f"Description: {article.description}", size=16, italic=True),
+                        padding=10,
+                        width=page.window.width,  # Set width to window width
+                    ),
+                    Container(
+                        content=Text(f"Publish Date: {article.published_date}", size=12, color=ft.Colors.GREY),
+                        padding=10,
+                        width=page.window.width,  # Set width to window width
+                    ),
+                    Container(
+                        content=Text(article.content, width=page.window.width),  # Set width to window width
+                        padding=10,
+                        width=page.window.width,  # Set width to window width
                     )
                 ]
             )

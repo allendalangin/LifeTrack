@@ -18,15 +18,28 @@ class HealthModel:
             return 0
 
     def get_user_location(self):
-        """Get the user's current location using IP address."""
+        """Get the user's current location using IP address via Google Maps Geolocation API."""
         try:
-            response = requests.get('https://ipinfo.io')
-            data = response.json()
-            location = data.get('loc', '').split(',')
-            if len(location) == 2:
-                latitude, longitude = location
-                return float(latitude), float(longitude)
+            # Prepare the request payload
+            payload = {
+                "considerIp": "true",  # Use IP address as a fallback
+            }
+
+            # Send the request to Google Maps Geolocation API
+            url = f"https://www.googleapis.com/geolocation/v1/geolocate?key={API_KEY}"
+            response = requests.post(url, json=payload)
+
+            # Parse the response
+            if response.status_code == 200:
+                location = response.json()
+                lat = location["location"]["lat"]
+                lng = location["location"]["lng"]
+                accuracy = location["accuracy"]
+                print(f"Location found: Latitude={lat}, Longitude={lng}, Accuracy={accuracy} meters")
+                return lat, lng
             else:
+                print(f"Error: {response.status_code}")
+                print(response.text)
                 return None, None
         except Exception as e:
             print(f"Error retrieving location: {e}")

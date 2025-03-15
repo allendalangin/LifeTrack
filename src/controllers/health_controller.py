@@ -7,7 +7,7 @@ class HealthController:
     async def use_current_location(self):
         """Search for nearby places using the user's current location."""
         self.view.toggle_fetching_data(True)  # Show loading progress bar
-        lat, lng = self.model.get_user_location()
+        lat, lng = self.model.get_user_location()  # Get the user's location using IP-based geolocation
         if lat and lng:
             business_list = self.model.search_nearby(lat, lng, self.search_mode)
             self.view.show_results(business_list)
