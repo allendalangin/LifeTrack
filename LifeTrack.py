@@ -32,6 +32,7 @@ GOOGLE_API_KEY = "AIzaSyBw00vdMc_H8vWKsFvjnflI37NnZB0mrLM"
 OPENWEATHERMAP_API_KEY = "7dec04c1fa4aac28978bd98f42ba4f7a"
 
 def main(page: ft.Page):
+    
     # Initialize the Article Controller
     article_controller = ArticleController(NEWS_API_KEY)
 
