@@ -1,5 +1,4 @@
 import flet as ft
-import httpx
 from urllib.parse import urlparse, parse_qs
 from src.models.login_model import UserModel
 from src.models.health_model import HealthModel
@@ -26,6 +25,15 @@ from src.views.health_articles_view import HealthArticlesView
 from src.views.article_details_view import ArticleDetailsView
 from src.views.infographics_view import InfographicsView
 
+from src.models.login_model import UserModel
+from src.models.admin_login_model import AdminLoginModel
+from src.controllers.login_controller import LoginController
+from src.controllers.admin_login_controller import AdminLoginController
+from src.views.login_view import LoginView
+from src.views.admin_login_view import AdminLoginView
+from src.views.admin_panel_view import AdminPanelView
+
+
 FASTAPI_URL = "http://127.0.0.1:8000"
 NEWS_API_KEY = "5111ef64cdb0c0c8bc6e35bcef2f82e5"
 GOOGLE_API_KEY = "AIzaSyBw00vdMc_H8vWKsFvjnflI37NnZB0mrLM"
@@ -51,13 +59,14 @@ def main(page: ft.Page):
         elif page.route == "/home":
             print("Loading dashboard...")
             username = getattr(page, "username", None)
-            view = DashboardView(page, None, article_controller)
-            controller = DashboardController(view, weather_controller)
-            view.controller = controller
+            # Initialize the DashboardController with WeatherController and ArticleController
+            controller = DashboardController(view=None, weather_controller=weather_controller)
+            view = DashboardView(page, controller, article_controller)
+            controller.view = view  # Assign the view to the controller
             page.dashboard_controller = controller  # Store the controller in the page object
             page.views.append(view.build())
             page.run_task(view.load_news)
-            page.run_task(controller.load_weather_data)
+            page.run_task(controller.load_weather_data)  # Load weather data
         elif page.route == "/signup":
             print("Loading signup view...")
             model = UserModel(FASTAPI_URL)
@@ -104,10 +113,19 @@ def main(page: ft.Page):
                 controller = page.dashboard_controller
             else:
                 # If the controller doesn't exist, create a new one
-                view = DashboardView(page, None, article_controller)
-                controller = DashboardController(view, weather_controller)
+                controller = DashboardController(view=None, weather_controller=weather_controller)
                 page.dashboard_controller = controller  # Store the controller in the page object
             view = ProfileView(page, controller)  # Pass the controller to the ProfileView
+            page.views.append(view.build())
+        elif page.route == "/admin-login":
+            print("Loading admin login view...")
+            view = AdminLoginView(page, None)
+            controller = AdminLoginController(view, FASTAPI_URL)
+            view.controller = controller
+            page.views.append(view.build())
+        elif page.route == "/admin":
+            print("Loading admin panel...")
+            view = AdminPanelView(page)
             page.views.append(view.build())
         page.update()
 
