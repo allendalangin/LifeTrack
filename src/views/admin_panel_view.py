@@ -49,12 +49,19 @@ class AdminPanelView:
         self.page.window_width = 1200
         self.page.window_height = 600
 
+        # Logout button
+        logout_button = ft.ElevatedButton(
+            "Logout",
+            icon=ft.icons.LOGOUT,
+            on_click=lambda e: page.go("/login"),  # Navigate to login page
+        )
+
         # Container for dynamic content
         background_image = ft.Image(
             src="src/assets/AuthBackground.jpg",
             fit=ft.ImageFit.COVER,
-            width=page.window.width,
-            height=page.window.height
+            width=page.window_width,
+            height=page.window_height,
         )
 
         # Container for dynamic content
@@ -70,10 +77,20 @@ class AdminPanelView:
             ],
         )
 
-        self.layout = ft.Stack([
-            background_image,  # Background at bottom layer
-            ft.Row([sidebar, self.content_container], expand=True)  # Content on top
-        ])
+        # Main layout with Stack
+        self.layout = ft.Stack(
+            [
+                background_image,  # Background at the bottom layer
+                ft.Column(  # Content above the background
+                    [
+                        ft.Row([logout_button], alignment="end"),  # Logout button at the top-right
+                        ft.Row([sidebar, self.content_container], expand=True),  # Main content below the logout button
+                    ],
+                    expand=True,
+                ),
+            ],
+            expand=True,
+        )
 
     def switch_view(self, e):
         view = e.control.data
@@ -263,10 +280,13 @@ class AdminPanelView:
         )
 
     def build(self):
-
+        # Wrap the layout in a Container and set expand=True
         return ft.View(
             route="/admin",
             controls=[
-                ft.Row([self.layout], expand=True),
+                ft.Container(
+                    content=self.layout,
+                    expand=True,  # Expand the container to fill the View
+                ),
             ],
         )

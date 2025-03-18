@@ -307,7 +307,7 @@ class DashboardView:
         return ft.View(
             "/home",
             controls=[main_layout],
-            appbar=self.DetailsAppBar(self.page, self),  # Pass both page and dashboard_view
+            appbar=self.DetailsAppBar(self.page, self),
             bgcolor="#f2f7ff",
         )
 

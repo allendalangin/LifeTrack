@@ -17,7 +17,7 @@ class UserModel:
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{self.api_url}/user/",
-                json={"username": username, "password": self.hash_password(password)},
+                json={"username": username, "password": password},  # Send plain password
             )
             if response.status_code == 200:
                 return True, "Signup successful!"
@@ -28,7 +28,6 @@ class UserModel:
 
     async def authenticate_user(self, username, password):
         async with httpx.AsyncClient() as client:
-            # Fetch user data (including hashed password) from the database
             response = await client.get(f"{self.api_url}/user/details/{username}")
             if response.status_code == 200:
                 user_data = response.json()
